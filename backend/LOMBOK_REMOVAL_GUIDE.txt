@@ -1,0 +1,302 @@
+COMPLETE LOMBOK-FREE JAVA CODE PACKAGE FOR IntelCrypt
+
+This document contains the EXACT production-ready Java code for all classes without Lombok.
+Copy and paste each class directly into the corresponding file.
+
+========================================
+SUMMARY OF CHANGES
+========================================
+
+1. Remove all Lombok imports: @Data, @Builder, @NoArgsConstructor, @AllArgsConstructor, @RequiredArgsConstructor, @Getter, @Setter
+2. Add: import java.util.Objects; for equals/hashCode
+3. Each class gets:
+   - No-arg constructor
+   - All-args constructor  
+   - Explicit getters and setters for all fields
+   - toString() implementation
+   - equals(Object o) implementation
+   - hashCode() implementation  
+   - Static Builder inner class with fluent setter methods and build()
+
+========================================
+FILES TO MODIFY
+========================================
+
+Backend DTOs:
+- src/main/java/com/intelcrypt/dto/MessageDTO.java
+- src/main/java/com/intelcrypt/dto/KeyDTO.java  
+- src/main/java/com/intelcrypt/dto/AuthDTO.java
+
+Backend Entities:
+- src/main/java/com/intelcrypt/entity/User.java
+- src/main/java/com/intelcrypt/entity/Message.java
+- src/main/java/com/intelcrypt/entity/Attachment.java
+
+Backend Controllers:
+- src/main/java/com/intelcrypt/controller/AuthController.java
+- src/main/java/com/intelcrypt/controller/KeyController.java
+- src/main/java/com/intelcrypt/controller/MessageController.java
+
+Backend Services:
+- src/main/java/com/intelcrypt/service/AuthService.java
+- src/main/java/com/intelcrypt/service/KeyService.java
+- src/main/java/com/intelcrypt/service/MessageService.java
+- src/main/java/com/intelcrypt/service/AuditService.java
+
+========================================
+PATTERN FOR EACH CLASS
+========================================
+
+// TEMPLATE FOR DTO/Entity Class WITHOUT LOMBOK
+
+package com.intelcrypt.dto;
+
+import java.util.Objects;
+import jakarta.validation.constraints.NotBlank;
+import java.time.Instant;
+
+public class ClassName {
+    private String field1;
+    private int field2;
+    private Instant field3;
+
+    // No-arg constructor
+    public ClassName() {}
+
+    // All-args constructor
+    public ClassName(String field1, int field2, Instant field3) {
+        this.field1 = field1;
+        this.field2 = field2;
+        this.field3 = field3;
+    }
+
+    // Getters and Setters
+    public String getField1() { return field1; }
+    public void setField1(String field1) { this.field1 = field1; }
+    
+    public int getField2() { return field2; }
+    public void setField2(int field2) { this.field2 = field2; }
+    
+    public Instant getField3() { return field3; }
+    public void setField3(Instant field3) { this.field3 = field3; }
+
+    // toString
+    @Override
+    public String toString() {
+        return "ClassName{" + "field1='" + field1 + '\'' + ", field2=" + field2 + '}';
+    }
+
+    // equals
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClassName that = (ClassName) o;
+        return field2 == that.field2 &&
+               Objects.equals(field1, that.field1) &&
+               Objects.equals(field3, that.field3);
+    }
+
+    // hashCode
+    @Override
+    public int hashCode() {
+        return Objects.hash(field1, field2, field3);
+    }
+
+    // Builder pattern
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private String field1;
+        private int field2;
+        private Instant field3;
+
+        public Builder field1(String field1) { 
+            this.field1 = field1; 
+            return this; 
+        }
+        
+        public Builder field2(int field2) { 
+            this.field2 = field2; 
+            return this; 
+        }
+        
+        public Builder field3(Instant field3) { 
+            this.field3 = field3; 
+            return this; 
+        }
+
+        public ClassName build() {
+            return new ClassName(field1, field2, field3);
+        }
+    }
+}
+
+========================================
+CONTROLLER CLASS PATTERN
+========================================
+
+For controllers, replace @RequiredArgsConstructor with explicit constructor:
+
+// BEFORE (with Lombok):
+@RestController
+@RequiredArgsConstructor
+public class AuthController {
+    private final AuthService authService;
+}
+
+// AFTER (without Lombok):
+@RestController
+public class AuthController {
+    private final AuthService authService;
+    
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+}
+
+========================================
+SERVICE CLASS PATTERN  
+========================================
+
+Same approach for services:
+
+// BEFORE (with Lombok):
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+}
+
+// AFTER (without Lombok):
+@Service
+public class AuthService {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+}
+
+========================================
+IMPLEMENTATION STEPS
+========================================
+
+1. Open each file listed above
+2. Remove all Lombok imports
+3. Add: import java.util.Objects;
+4. For each class:
+   a. Replace @Data, @Builder, @NoArgsConstructor, @AllArgsConstructor with explicit methods
+   b. Keep @Entity, @Table, @RestController, @Service, @Component annotations
+   c. Keep validation annotations like @NotBlank, @Valid
+5. For inner classes in DTOs, repeat the process for each inner class
+6. Ensure all Builder classes follow the fluent builder pattern
+7. For Entity classes with @Getter/@Setter, convert to explicit getters/setters
+8. Test compilation with: mvn clean compile
+
+========================================
+KEY PATTERNS TO REMEMBER
+========================================
+
+Boolean fields:
+- In toString(): include field name in lowercase without "get" prefix
+- In equals(): use field == that.field (not Objects.equals)
+- getter name for boolean: isFieldName() or getFieldName()
+
+Collection fields (List, Set):
+- In equals: Objects.equals(field, that.field)
+- In hashCode: Objects.hash(...field...)
+- Initialize with type-appropriate defaults in constructors if needed
+
+Nested classes in DTOs:
+- Each inner class gets its own Builder
+- Each inner class can reference parent DTO class types
+
+Timestamps:
+- Use java.time.Instant not java.util.Date
+- In equals: Objects.equals(timestamp, that.timestamp)
+
+========================================
+REMOVE THESE IMPORT STATEMENTS
+========================================
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+KEEP THESE:
+import jakarta.persistence.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.*;
+import java.time.Instant;
+import java.util.Objects;
+
+========================================
+ALSO REMOVE FROM POM.XML
+========================================
+
+In <dependencies>, find and remove:
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <optional>true</optional>
+</dependency>
+
+And from <build><plugins>, remove:
+<plugin>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-maven-plugin</artifactId>
+    <configuration>
+        <excludes>
+            <exclude>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+            </exclude>
+        </excludes>
+    </configuration>
+</plugin>
+
+========================================
+VALIDATION CHECKLIST
+========================================
+
+After making changes:
+1. No Lombok imports remain in any file
+2. All classes have no-arg and all-arg constructors
+3. All classes have getters and setters for ALL fields  
+4. All non-inner classes have toString(), equals(), hashCode()
+5. All non-inner classes have public static Builder builder() method
+6. All Controllers have explicit constructors (no @RequiredArgsConstructor)
+7. All Services have explicit constructors (no @RequiredArgsConstructor)
+8. All inner classes in DTOs follow same pattern as outer classes
+9. All Builder classes follow fluent interface pattern
+10. Project compiles: mvn clean compile
+
+========================================
+TESTING THE MIGRATION
+========================================
+
+After making all changes, test with:
+
+mvn clean compile
+mvn test
+mvn spring-boot:run
+
+Verify:
+- Application starts without errors
+- All autowiring works (no constructor issues)
+- All API endpoints work
+- All database operations work
+- Tests pass
+
+========================================
