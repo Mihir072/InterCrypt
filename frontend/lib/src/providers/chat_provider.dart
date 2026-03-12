@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
@@ -62,16 +63,35 @@ class ChatListState {
 /// Chat List Notifier
 class ChatListNotifier extends StateNotifier<ChatListState> {
   final ApiService _apiService;
+  final Ref _ref;
+  Timer? _pollingTimer;
 
-  ChatListNotifier(this._apiService) : super(const ChatListState()) {
-    // Automatically fetch chats on initialization
+  /// Previous unread counts keyed by chatId (for detecting new messages)
+  final Map<String, int> _previousUnread = {};
+
+  ChatListNotifier(this._apiService, this._ref) : super(const ChatListState()) {
+    // Fetch immediately on init
     fetchChats();
+    // Poll every 60 seconds as a fallback — WebSocket handles real-time delivery
+    _pollingTimer = Timer.periodic(
+      const Duration(seconds: 60),
+      (_) => fetchChats(),
+    );
   }
 
-  /// Fetch all chats
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  /// Fetch all chats and emit in-app notifications for new messages
   Future<void> fetchChats() async {
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      // Only show the loading spinner on first load (when chats list is empty)
+      if (state.chats.isEmpty) {
+        state = state.copyWith(isLoading: true, error: null);
+      }
 
       final chats = await _apiService.getChats();
 
@@ -79,6 +99,27 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
         0,
         (sum, chat) => sum + chat.unreadCount,
       );
+
+      // Detect which chats have gained new unread messages since last poll
+      final activeChatId = _ref.read(selectedChatProvider);
+      for (final chat in chats) {
+        final prev = _previousUnread[chat.id] ?? 0;
+        if (chat.unreadCount > prev && chat.id != activeChatId) {
+          // New messages arrived — push an in-app notification
+          _ref
+              .read(notificationProvider.notifier)
+              .show(
+                InAppNotification(
+                  id: '${chat.id}_${DateTime.now().millisecondsSinceEpoch}',
+                  chatId: chat.id,
+                  chatName: chat.name,
+                  previewText: '🔒 New encrypted message',
+                  timestamp: DateTime.now(),
+                ),
+              );
+        }
+        _previousUnread[chat.id] = chat.unreadCount;
+      }
 
       state = ChatListState(
         chats: chats,
@@ -240,7 +281,7 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
 final chatListProvider = StateNotifierProvider<ChatListNotifier, ChatListState>(
   (ref) {
     final apiService = ref.watch(apiServiceProvider);
-    return ChatListNotifier(apiService);
+    return ChatListNotifier(apiService, ref);
   },
 );
 

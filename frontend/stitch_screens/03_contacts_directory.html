@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e2a38",
+                        "accent": "#00f2ff",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#16191c",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(30, 42, 56, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 242, 255, 0.1);
+        }
+        .status-online {
+            box-shadow: 0 0 8px #00f2ff;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display selection:bg-accent/30">
+<div class="relative flex h-screen w-full flex-col overflow-hidden max-w-md mx-auto border-x border-primary/20 shadow-2xl">
+<header class="flex flex-col gap-4 p-6 bg-primary/10 border-b border-primary/20">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="flex size-10 items-center justify-center rounded-xl bg-primary text-accent">
+<span class="material-symbols-outlined text-2xl">shield_lock</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-slate-100">IntelCrypt</h1>
+<p class="text-xs font-medium text-accent/80 uppercase tracking-widest">Secure Directory</p>
+</div>
+</div>
+<button class="flex size-10 items-center justify-center rounded-full bg-primary/40 text-slate-100 hover:bg-primary/60 transition-colors">
+<span class="material-symbols-outlined">person_add</span>
+</button>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-accent/50 group-focus-within:text-accent transition-colors">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="block w-full pl-11 pr-4 py-3 bg-primary/30 border border-primary/40 rounded-xl focus:ring-1 focus:ring-accent focus:border-accent bg-transparent text-slate-100 placeholder-slate-500 text-sm transition-all" placeholder="Search encrypted nodes..." type="text"/>
+</div>
+<div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+<button class="px-4 py-1.5 rounded-full bg-accent text-primary text-xs font-bold whitespace-nowrap">All Contacts</button>
+<button class="px-4 py-1.5 rounded-full bg-primary/40 text-slate-300 text-xs font-medium border border-primary/20 hover:border-accent/30 transition-all whitespace-nowrap">Verified Only</button>
+<button class="px-4 py-1.5 rounded-full bg-primary/40 text-slate-300 text-xs font-medium border border-primary/20 hover:border-accent/30 transition-all whitespace-nowrap">Favorites</button>
+<button class="px-4 py-1.5 rounded-full bg-primary/40 text-slate-300 text-xs font-medium border border-primary/20 hover:border-accent/30 transition-all whitespace-nowrap">Groups</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
+<h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest px-2 mb-4">Active Sessions</h3>
+<div class="space-y-1">
+<div class="group flex items-center gap-4 p-3 rounded-xl hover:bg-primary/20 transition-all cursor-pointer border border-transparent hover:border-primary/30">
+<div class="relative">
+<img alt="User Avatar" class="size-12 rounded-full border-2 border-primary bg-primary/50" data-alt="Cyberpunk style male avatar with neon accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE87nIfOFtrUKyFYESeAEX4Q1YyLvGBojRbbGULqs6PbIGP002FtGRYHfME6x8IfY9sJddlXszX8NCsqxRvecppHfnXQWIVSEMoM2hJwL2LHRhW2nYoixDeGoUYZjTYWENtpk3hgqrK-RkxrwA7l7zjZx9DdJwyhbsV_VM1jSQ-rjqJ0wRzjDEElAXp5RHKBYROpmg8bS5I5_UZrF3gQL-sUkbjoGRzreuIIuepymImDs4p3-usn4H95OP5tO2iGwNoLtWHAvMC9U"/>
+<div class="absolute bottom-0 right-0 size-3.5 rounded-full bg-accent border-2 border-background-dark status-online"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-slate-100 truncate">Agent Cipher</span>
+<span class="material-symbols-outlined text-[16px] text-accent fill-1" title="Verified Node">verified</span>
+</div>
+<p class="text-xs text-slate-400 truncate">Last seen: Just now</p>
+</div>
+<div class="text-accent/40 group-hover:text-accent transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<div class="group flex items-center gap-4 p-3 rounded-xl hover:bg-primary/20 transition-all cursor-pointer border border-transparent hover:border-primary/30">
+<div class="relative">
+<img alt="User Avatar" class="size-12 rounded-full border-2 border-primary bg-primary/50" data-alt="Female tech avatar with glasses and blue hair" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKdy-mh9iuoOjobXREB3otPgNMi44szMwGcJfmuolSaIb1naZUwgRZlAMgVQLvZfabLHFd1owjCha-h83felvwSVn1W3JfFWEyIipb-vzSJD8tULxRxE4tkbMR5lh_14TTqvJXsENmN0ICjcRDdaZNN8GbT6sREDnF8z6P0CfSn5cqgV0YiTyJsqzfhCChf1MqHAlT4V2rLiSk-089F7bnhOgdStZILJEIkL-JtfKpGGZeoMzFH5U_djhU8f5P2nN30WLMgyx15_U"/>
+<div class="absolute bottom-0 right-0 size-3.5 rounded-full bg-slate-600 border-2 border-background-dark"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-slate-100 truncate">Echo Protocol</span>
+<span class="material-symbols-outlined text-[16px] text-accent fill-1">verified</span>
+</div>
+<p class="text-xs text-slate-400 truncate">Last seen: 14m ago</p>
+</div>
+<div class="text-accent/40 group-hover:text-accent transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest px-2 mt-6 mb-4">Secure Directory</h3>
+<div class="group flex items-center gap-4 p-3 rounded-xl hover:bg-primary/20 transition-all cursor-pointer border border-transparent hover:border-primary/30">
+<div class="relative">
+<img alt="User Avatar" class="size-12 rounded-full border-2 border-primary bg-primary/50" data-alt="Mysterious hooded avatar in shadow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_v4xLB1KaRV4FcNdnB02OKSkSEu8kM_ShX-bGgvjtopiyE2yNgKm99oTKIN2GyYzf_fnxoxva76Tm0rIpEf60XNoTmcSJztc73sMO9G7pcykj0kC7SvBVAT_-F8TmI4jJR2Pi07d3cZlsKTMAmK59BpEL17XeV-7t-l3GxYxbP2y-Wj-iS8zoHKFQVhNkm1_8BzrG9IePlq0S11guFrwIq7Vjhv0XpJbX2HDFm7YYKtuEdfzxVaxnzlqFBmn-Qgz4JUYhsL5TPt8"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-slate-100 truncate">Null Vector</span>
+</div>
+<p class="text-xs text-slate-400 truncate">Last seen: 2h ago</p>
+</div>
+<div class="text-accent/40 group-hover:text-accent transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<div class="group flex items-center gap-4 p-3 rounded-xl hover:bg-primary/20 transition-all cursor-pointer border border-transparent hover:border-primary/30">
+<div class="relative">
+<img alt="User Avatar" class="size-12 rounded-full border-2 border-primary bg-primary/50" data-alt="Sleek modern female professional avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmQ4UHTnEkWVCVGjcQILvQsp0YapdOftSYgZhEmVzAeCKSHS7YpfUtyWID5PoIX7_wsM6Ve1y39wHW2GpNob9v3XsXv3EXZEEEE47w7kvvDi23-_1-NfOoe4NQrtNWHV4hGJu2S6tC-EpL90BPu7_b0EtZBdCvk5ufUY1GP-cWTD-eL7XKnQu37KcYBl1__eX3n1x9pcAReAYiVu7IoKnN5zMEByKD1aLb7pGCwgdVdsd7tJWrnWK40TufPQ1LpV-YlryAm6KMjPU"/>
+<div class="absolute bottom-0 right-0 size-3.5 rounded-full bg-accent border-2 border-background-dark status-online"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-slate-100 truncate">Nova Prime</span>
+<span class="material-symbols-outlined text-[16px] text-accent fill-1">verified</span>
+</div>
+<p class="text-xs text-slate-400 truncate">Last seen: 5m ago</p>
+</div>
+<div class="text-accent/40 group-hover:text-accent transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<div class="group flex items-center gap-4 p-3 rounded-xl hover:bg-primary/20 transition-all cursor-pointer border border-transparent hover:border-primary/30">
+<div class="relative">
+<img alt="User Avatar" class="size-12 rounded-full border-2 border-primary bg-primary/50" data-alt="Rugged avatar with tactical gear" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7yWy6X0UevFoiV0j7hh-fHIuvfXoSNu4WDflHFt1esjg2WVYCyXtH0QYfABFvgggOiINEwlMdLt5FUplTGkpYgOojg-1CnoM3oJn6bFhQA6XnHw1rBHCvcmbMgwxSBlnM7p8uRHg8Enc_Z4hc9Pp_n3yC0LIogAC_qKDTtJr4tfzHBUBZjEjCxKbwAnACs8wj_NhlyFQLzGrvLCDKkRZAfAimIr4FB-VZofJQLQNIym4a_NsCketNzcmeYez6XdfGbQ5GKh-XWXw"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-slate-100 truncate">Titan 7</span>
+</div>
+<p class="text-xs text-slate-400 truncate">Last seen: Yesterday</p>
+</div>
+<div class="text-accent/40 group-hover:text-accent transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<div class="group flex items-center gap-4 p-3 rounded-xl hover:bg-primary/20 transition-all cursor-pointer border border-transparent hover:border-primary/30">
+<div class="relative">
+<img alt="User Avatar" class="size-12 rounded-full border-2 border-primary bg-primary/50" data-alt="Bright futuristic female avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjcfr8Lece4bHWm_3lbWbJrnAtazbd7JdwX2kM0tvJgzgE-i9Q0RBA_3WsRrvCWGKbYidLhTFH0qbaarP6AwvHG7RCu2xKZh1E8ENTzGHYmfufQavavqWPaiWAd8HxqNsEpXpmjcdMba1gDdsO3CP-PuB8jxQ_2dOOcwu5csZU0p9PDWNFl4xx9Lx1WcoLZn8qQmTN3jQM0c6FSAwqfO5280X1alGjKcqGknK3Mfv8c6b8wjNrZ-eB5HHKejKT7gs2OuupqorXtPY"/>
+<div class="absolute bottom-0 right-0 size-3.5 rounded-full bg-accent border-2 border-background-dark status-online"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-slate-100 truncate">Solaris</span>
+<span class="material-symbols-outlined text-[16px] text-accent fill-1">verified</span>
+</div>
+<p class="text-xs text-slate-400 truncate">Last seen: Just now</p>
+</div>
+<div class="text-accent/40 group-hover:text-accent transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+</div>
+</main>
+<nav class="flex items-center justify-around bg-primary/40 border-t border-primary/40 px-4 py-3 backdrop-blur-lg">
+<a class="flex flex-col items-center gap-1 text-slate-500 hover:text-accent transition-colors" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Chats</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-accent" href="#">
+<span class="material-symbols-outlined fill-1">group</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Contacts</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500 hover:text-accent transition-colors" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Vault</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500 hover:text-accent transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">System</span>
+</a>
+</nav>
+<div class="absolute bottom-20 right-6">
+<button class="flex size-14 items-center justify-center rounded-2xl bg-accent text-primary shadow-lg shadow-accent/20 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl font-bold">add</span>
+</button>
+</div>
+</div>
+</body></html>

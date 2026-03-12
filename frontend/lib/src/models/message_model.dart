@@ -187,6 +187,14 @@ class MessageAttachment {
   final String fileUrl;
   final String? thumbnailUrl;
   final String encryptionKeyId;
+  final bool hasHiddenData;
+  
+  // Location-Based Access Control
+  final bool locationRestrictionEnabled;
+  final double? restrictedLatitude;
+  final double? restrictedLongitude;
+  final double? allowedRadius; // in meters
+  final String? locationLabel;
 
   const MessageAttachment({
     required this.id,
@@ -196,6 +204,12 @@ class MessageAttachment {
     required this.fileUrl,
     this.thumbnailUrl,
     required this.encryptionKeyId,
+    this.hasHiddenData = false,
+    this.locationRestrictionEnabled = false,
+    this.restrictedLatitude,
+    this.restrictedLongitude,
+    this.allowedRadius,
+    this.locationLabel,
   });
 
   factory MessageAttachment.fromJson(Map<String, dynamic> json) {
@@ -207,6 +221,12 @@ class MessageAttachment {
       fileUrl: json['fileUrl'] as String,
       thumbnailUrl: json['thumbnailUrl'] as String?,
       encryptionKeyId: json['encryptionKeyId'] as String,
+      hasHiddenData: json['hasHiddenData'] as bool? ?? false,
+      locationRestrictionEnabled: json['locationRestrictionEnabled'] as bool? ?? false,
+      restrictedLatitude: (json['restrictedLatitude'] as num?)?.toDouble(),
+      restrictedLongitude: (json['restrictedLongitude'] as num?)?.toDouble(),
+      allowedRadius: (json['allowedRadius'] as num?)?.toDouble(),
+      locationLabel: json['locationLabel'] as String?,
     );
   }
 
@@ -219,6 +239,12 @@ class MessageAttachment {
       'fileUrl': fileUrl,
       'thumbnailUrl': thumbnailUrl,
       'encryptionKeyId': encryptionKeyId,
+      'hasHiddenData': hasHiddenData,
+      'locationRestrictionEnabled': locationRestrictionEnabled,
+      'restrictedLatitude': restrictedLatitude,
+      'restrictedLongitude': restrictedLongitude,
+      'allowedRadius': allowedRadius,
+      'locationLabel': locationLabel,
     };
   }
 }

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e2a38",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#16191c",
+                        "accent-cyan": "#00f2ff",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .qr-gradient {
+            background: linear-gradient(45deg, rgba(30, 42, 56, 0.1) 0%, rgba(0, 242, 255, 0.05) 100%);
+        }
+        .scan-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00f2ff, transparent);
+            width: 100%;
+            position: absolute;
+            top: 50%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 border-b border-slate-200 dark:border-primary/30 justify-between sticky top-0 z-10 backdrop-blur-md">
+<div class="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<div class="flex flex-col items-center">
+<h2 class="text-slate-900 dark:text-slate-100 text-sm font-bold leading-tight tracking-widest uppercase">Key Verification</h2>
+<p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">PROTOCOL: INTELCRYPT V2.4</p>
+</div>
+<div class="flex w-10 items-center justify-end">
+<button class="flex size-10 items-center justify-center rounded-full bg-transparent text-slate-900 dark:text-slate-100 hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined">shield_lock</span>
+</button>
+</div>
+</div>
+<main class="flex-1 overflow-y-auto px-6 py-8 flex flex-col items-center max-w-md mx-auto w-full">
+<div class="flex flex-col items-center mb-8">
+<div class="relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-accent-cyan to-primary rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+<div class="relative bg-center bg-no-repeat aspect-square bg-cover rounded-full h-24 w-24 border-2 border-primary" data-alt="Professional portrait of a male contact Alex Rivera" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4jmnVTxc0oOUw427UsTZ1kx3czA3sKHPs447RE509CsUGAnnxr1QXbYatcW9j8EtGhegM_7v2UdoppnYKQz7_mhhk0qTbjGSt54bHg_oQZlJOtalTOQXPuJxm52EAp_EfyOh46q4b-NeSR_aobZ5eA26dSUwro_KCOqOcJ9ewCvXqbP-T3er2PD2CruQLzg9mg3j2Ofh8w9uWS_yE5JRzG9kdOUJ4ySGm2dqSJJwMBLeuyZvsQKh7EZq1Mxci_n97qXag5kWFDGY");'></div>
+</div>
+<div class="mt-4 text-center">
+<p class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Alex Rivera</p>
+<div class="flex items-center justify-center gap-1.5 mt-1">
+<span class="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Identity Confirmed</p>
+</div>
+</div>
+</div>
+<div class="w-full relative group">
+<div class="absolute -inset-0.5 bg-primary/20 rounded-xl blur-sm"></div>
+<div class="relative bg-white dark:bg-primary/10 border border-slate-200 dark:border-primary/40 rounded-xl p-8 flex flex-col items-center">
+<div class="relative aspect-square w-full max-w-[240px] p-4 bg-white rounded-lg border-4 border-slate-100 dark:border-primary/20">
+<img alt="Encryption Key QR Code" class="w-full h-full grayscale dark:contrast-125" data-alt="Complex high-security QR code for key verification" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyjbmVdQUDc7entAUrnuujXQi-LaM6N_QBYD3olxOGQeYhyz5i6PQAQFUV_E9GJniN-b7GhKbmkpD-58ORBV0z9KwjeqjKryq4wk9njgUcHF8neII_6ivkFdX8RZxsDrKIh9fqEVyOPX-0aLwfGWUFfw8nWfJYzMOy-FK9lTwtY_JFLtz3qa-gGwF2ZxYKIkGkf8upyxkUnEDbzKo8SQ7QgCQAZkiWVp7fBztHhptnlc0ixv7oELn5U8b1forz_pqmM_l766WYMO8"/>
+<div class="scan-line opacity-50"></div>
+</div>
+<div class="mt-8 w-full">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hex Fingerprint</span>
+<span class="material-symbols-outlined text-sm text-slate-400">content_copy</span>
+</div>
+<div class="bg-slate-100 dark:bg-background-dark/50 p-4 rounded-lg border border-slate-200 dark:border-primary/30 font-mono text-sm break-all leading-relaxed text-slate-600 dark:text-accent-cyan/80 text-center">
+                        77A2 B41C 990E 42F1 D933<br/>
+                        88E1 204C B1A9 FFFF 0021
+                    </div>
+</div>
+</div>
+</div>
+<div class="w-full mt-8 flex flex-col gap-3">
+<button class="w-full py-4 bg-primary dark:bg-primary border border-primary/50 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-xl">verified</span>
+                Mark as Trusted
+            </button>
+<button class="w-full py-4 bg-transparent border border-slate-200 dark:border-primary/30 text-slate-600 dark:text-slate-300 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-primary/10 transition-all">
+                Compare Digitally
+            </button>
+</div>
+<p class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400 leading-relaxed px-4">
+            Verify this fingerprint in person or via another secure channel. If it matches, this connection is 100% end-to-end encrypted.
+        </p>
+</main>
+<nav class="border-t border-slate-200 dark:border-primary/30 bg-white/80 dark:bg-background-dark/80 backdrop-blur-lg px-4 pb-6 pt-2 sticky bottom-0 z-10">
+<div class="flex gap-2 max-w-md mx-auto">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Chats</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary dark:text-accent-cyan" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">group</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Contacts</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">encrypted</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Vault</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">settings</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Settings</p>
+</a>
+</div>
+</nav>
+</body></html>

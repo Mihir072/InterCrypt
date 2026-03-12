@@ -226,6 +226,42 @@ class ApiService {
     }
   }
 
+  /// Upload a file
+  Future<dynamic> uploadFile(String filePath, String fileName, {List<int>? bytes}) async {
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/files/upload'),
+      );
+      
+      final headers = _getHeaders();
+      headers.remove('Content-Type'); // Let http client set boundary
+      request.headers.addAll(headers);
+
+      if (bytes != null) {
+        request.files.add(http.MultipartFile.fromBytes('file', bytes, filename: fileName));
+      } else {
+        request.files.add(await http.MultipartFile.fromPath('file', filePath, filename: fileName));
+      }
+
+      final streamedResponse = await _client.send(request).timeout(const Duration(seconds: 60));
+      final response = await http.Response.fromStream(streamedResponse);
+      
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return jsonDecode(response.body);
+      } else {
+        throw ApiException(
+          message: 'Upload failed',
+          statusCode: response.statusCode,
+          originalError: response.body,
+        );
+      }
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException(message: 'Network error during upload: $e', originalError: e);
+    }
+  }
+
   // ============== AUTH ENDPOINTS ==============
 
   /// Login with email and password
@@ -522,7 +558,7 @@ class ApiService {
                 keyId: m.encryption.keyId,
                 encryptionKey: 'default_key', // In real app, get from storage
               );
-              return m.copyWith(content: decrypted);
+              return parseDecryptedContent(m, decrypted);
             } catch (e) {
               return m;
             }
@@ -561,9 +597,17 @@ class ApiService {
       // Encrypt content for E2E
       String encrypted = contentEncrypted ?? content;
       if (contentEncrypted == null) {
+        String payloadToEncrypt = content;
+        if (attachments.isNotEmpty) {
+          payloadToEncrypt = jsonEncode({
+            'text': content,
+            'attachments': attachments.map((a) => a.toJson()).toList(),
+          });
+        }
+        
         try {
           encrypted = await EncryptionService.encryptMessage(
-            content,
+            payloadToEncrypt,
             keyId: 'default',
             encryptionKey: 'default_key',
           );
@@ -595,7 +639,7 @@ class ApiService {
             keyId: message.encryption.keyId,
             encryptionKey: 'default_key',
           );
-          return message.copyWith(content: decrypted);
+          return parseDecryptedContent(message, decrypted);
         } catch (e) {
           return message;
         }
@@ -738,7 +782,27 @@ class ApiService {
     }
   }
 
+  Message parseDecryptedContent(Message m, String decrypted) {
+    try {
+      if (decrypted.startsWith('{') && decrypted.contains('"text":') && decrypted.contains('"attachments":')) {
+        final decoded = jsonDecode(decrypted);
+        final text = decoded['text'] as String? ?? '';
+        final List<dynamic>? attList = decoded['attachments'];
+        
+        List<MessageAttachment> parsedAtts = [];
+        if (attList != null) {
+          parsedAtts = attList.map((a) => MessageAttachment.fromJson(a as Map<String, dynamic>)).toList();
+        }
+        return m.copyWith(content: text, attachments: parsedAtts);
+      }
+    } catch (e) {
+      // Not valid JSON payload, fallback to raw string
+    }
+    return m.copyWith(content: decrypted);
+  }
+
   void dispose() {
     _client.close();
   }
 }
+

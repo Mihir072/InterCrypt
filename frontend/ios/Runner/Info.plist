@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>IntelCrypt needs access to location to verify your access to geofenced secret files.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>IntelCrypt needs access to location to verify your access to geofenced secret files.</string>
 </dict>
 </plist>

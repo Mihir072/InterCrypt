@@ -72,17 +72,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      // Load tokens from secure storage
+      // Load tokens from secure storage (local — fast, no network)
       await _apiService.loadStoredTokens();
 
       final accessToken = await _secureStorage.getAccessToken();
       final refreshToken = await _secureStorage.getRefreshToken();
-      final userId = await _secureStorage.getUserId();
 
       if (accessToken != null && refreshToken != null) {
-        // Tokens exist, try to get current user
         try {
-          final user = await _apiService.getCurrentUser();
+          // Validate token with the server. Use a timeout so a slow/offline
+          // server doesn't hang the splash screen.
+          final user = await _apiService.getCurrentUser().timeout(
+            const Duration(seconds: 6),
+          );
+
           state = AuthState(
             isAuthenticated: true,
             token: AuthToken(
@@ -98,9 +101,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
             lastRefresh: DateTime.now(),
           );
         } catch (e) {
-          // Token might be invalid, clear it
-          print('Failed to load user on init: $e');
-          await logout();
+          // Token invalid or server unreachable — clear local tokens only
+          // (skip server-side logout which would make us hang again).
+          await _secureStorage.clearTokens();
+          state = const AuthState();
         }
       } else {
         state = state.copyWith(isLoading: false);
@@ -286,10 +290,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
-/// Auth provider - use manual StateNotifierProvider for proper .notifier access
+/// Auth provider — kept alive for the full app lifetime so auth state
+/// is never lost to auto-dispose.
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  final apiService = ref.watch(apiServiceProvider);
-  final secureStorage = ref.watch(secureStorageProvider);
+  // Use read (not watch) so rebuilding apiServiceProvider/secureStorageProvider
+  // doesn't silently create a fresh AuthNotifier and wipe auth state.
+  final apiService = ref.read(apiServiceProvider);
+  final secureStorage = ref.read(secureStorageProvider);
   return AuthNotifier(apiService, secureStorage);
 });
 
@@ -323,16 +330,16 @@ String? authError(AuthErrorRef ref) {
   return ref.watch(authStateProvider).error;
 }
 
-/// API Service provider
-@riverpod
+/// API Service provider — kept alive for app lifetime (non-auto-dispose).
+@Riverpod(keepAlive: true)
 ApiService apiService(ApiServiceRef ref) {
   final apiService = ApiService(baseUrl: AppConfig.apiBaseUrl);
   ref.onDispose(() => apiService.dispose());
   return apiService;
 }
 
-/// Secure Storage provider
-@riverpod
+/// Secure Storage provider — kept alive for app lifetime (non-auto-dispose).
+@Riverpod(keepAlive: true)
 SecureStorageService secureStorage(SecureStorageRef ref) {
   return SecureStorageService();
 }

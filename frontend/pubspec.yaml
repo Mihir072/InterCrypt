@@ -34,6 +34,7 @@ dependencies:
   # UI & Design
   cupertino_icons: ^1.0.8
   material_design_icons_flutter: ^7.0.7296
+  google_fonts: ^6.1.0
 
   # State Management & Architecture
   flutter_riverpod: ^2.4.0
@@ -45,6 +46,9 @@ dependencies:
   # HTTP & Networking
   http: ^1.1.0
   connectivity_plus: ^5.0.0
+  # Real-time WebSocket (STOMP)
+  stomp_dart_client: ^0.4.4
+  web_socket_channel: ^2.4.0
 
   # Secure Storage
   flutter_secure_storage: ^9.0.0
@@ -79,11 +83,16 @@ dependencies:
   logger: ^2.0.0
 
   # Device Info
-  device_info_plus: ^9.1.0
-  package_info_plus: ^5.0.0
+  device_info_plus: ^12.3.0
+  package_info_plus: ^9.0.0
 
   # Platform Channels
-  share_plus: ^7.2.0
+  share_plus: ^12.0.1
+  file_picker: ^10.3.10
+  url_launcher: ^6.3.2
+  image: ^4.8.0
+  geolocator: ^14.0.2
+  google_maps_flutter: ^2.15.0
 
 dev_dependencies:
   flutter_test:

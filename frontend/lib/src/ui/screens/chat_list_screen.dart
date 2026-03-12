@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../models/models.dart';
-import '../widgets/chat_tile.dart';
+import '../theme/app_theme.dart';
 
-/// Chat List Screen - Display all conversations
+/// Chat List Screen — Stitch-inspired Contacts Directory style
 class ChatListScreen extends ConsumerStatefulWidget {
   const ChatListScreen({Key? key}) : super(key: key);
 
@@ -15,19 +15,30 @@ class ChatListScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatListScreen> createState() => _ChatListScreenState();
 }
 
-class _ChatListScreenState extends ConsumerState<ChatListScreen> {
+class _ChatListScreenState extends ConsumerState<ChatListScreen>
+    with WidgetsBindingObserver {
   late TextEditingController _searchController;
   late FocusNode _searchFocusNode;
+  int _selectedFilter = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _searchController = TextEditingController();
     _searchFocusNode = FocusNode();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(chatListProvider.notifier).fetchChats();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
@@ -36,158 +47,81 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   @override
   Widget build(BuildContext context) {
     final chatListAsync = ref.watch(chatListProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('IntelCrypt'),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () => context.goNamed('profile'),
-            tooltip: 'Profile',
-          ),
-          IconButton(
-            icon: const Icon(Icons.security),
-            onPressed: () => context.goNamed('security'),
-            tooltip: 'Security',
-          ),
-        ],
-      ),
       body: Column(
         children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              focusNode: _searchFocusNode,
-              decoration: InputDecoration(
-                hintText: 'Search conversations...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {});
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {});
-              },
-            ),
-          ),
+          // ── Stitch-style Header ──
+          _buildHeader(context, isDark),
 
-          // Chat List
+          // ── Chat List ──
           Expanded(
             child: Builder(
               builder: (context) {
                 if (chatListAsync.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppTheme.electricCyan,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'DECRYPTING DIRECTORY...',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textMuted,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 }
 
                 if (chatListAsync.error != null) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 48,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Failed to load chats',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          chatListAsync.error.toString(),
-                          style: Theme.of(context).textTheme.bodySmall,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: () {
-                            ref.refresh(chatListProvider);
-                          },
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  );
+                  return _buildErrorState(context, chatListAsync);
                 }
 
                 final chats = chatListAsync.chats;
-
-                // Filter chats based on search
                 final filteredChats = _searchController.text.isEmpty
                     ? chats
                     : chats
-                          .where(
-                            (chat) => chat.name.toLowerCase().contains(
-                              _searchController.text.toLowerCase(),
-                            ),
-                          )
-                          .toList();
+                        .where((chat) => chat.name
+                            .toLowerCase()
+                            .contains(_searchController.text.toLowerCase()))
+                        .toList();
 
                 if (filteredChats.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.chat_outlined,
-                          size: 48,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _searchController.text.isEmpty
-                              ? 'No conversations yet'
-                              : 'No conversations found',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        if (_searchController.text.isEmpty)
-                          const SizedBox(height: 8),
-                        if (_searchController.text.isEmpty)
-                          Text(
-                            'Start a new conversation to begin',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                      ],
-                    ),
-                  );
+                  return _buildEmptyState(context, isDark);
                 }
 
                 return RefreshIndicator(
+                  color: AppTheme.electricCyan,
+                  backgroundColor: AppTheme.primaryBlue,
                   onRefresh: () async {
                     ref.refresh(chatListProvider);
-                    return Future.value();
                   },
                   child: ListView.builder(
                     itemCount: filteredChats.length,
-                    padding: EdgeInsets.zero,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemBuilder: (context, index) {
                       final chat = filteredChats[index];
                       final currentUserId = ref.watch(currentUserProvider)?.id;
-                      return ChatTile(
+                      return _StitchChatTile(
                         chat: chat,
                         currentUserId: currentUserId,
+                        isDark: isDark,
                         onTap: () {
-                          ref.read(selectedChatProvider.notifier).state =
-                              chat.id;
+                          ref.read(selectedChatProvider.notifier).state = chat.id;
                           context.goNamed(
                             'chat_message',
                             pathParameters: {'chatId': chat.id},
@@ -197,71 +131,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                             },
                           );
                         },
-                        onArchive: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Archive conversation?'),
-                              content: Text(
-                                'Archive "${chat.name}" conversation. It will not be deleted.',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  child: const Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('Archive'),
-                                ),
-                              ],
-                            ),
-                          );
-
-                          if (confirm == true) {
-                            ref.read(selectedChatProvider.notifier).state =
-                                chat.id;
-                            await ref
-                                .read(chatListProvider.notifier)
-                                .archiveChat(chat.id);
-                            ref.refresh(chatListProvider);
-                          }
-                        },
-                        onMute: () {
-                          _showMuteOptions(context, chat);
-                        },
-                        onDelete: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Delete conversation?'),
-                              content: const Text(
-                                'This will permanently delete the conversation and all messages.',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  child: const Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.error,
-                                  ),
-                                  child: const Text('Delete'),
-                                ),
-                              ],
-                            ),
-                          );
-
-                          if (confirm == true) {
-                            ref.refresh(chatListProvider);
-                          }
-                        },
+                        onArchive: () => _handleArchive(chat),
+                        onDelete: () => _handleDelete(chat),
+                        onMute: () => _showMuteOptions(context, chat),
                       );
                     },
                   ),
@@ -271,48 +143,388 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showNewConversationDialog(context);
+
+      // FAB — Stitch accent style
+      floatingActionButton: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: AppTheme.electricCyan,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.electricCyan.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => _showNewConversationDialog(context),
+            child: const Icon(
+              Icons.add,
+              size: 28,
+              color: AppTheme.backgroundDeep,
+            ),
+          ),
+        ),
+      ),
+
+      // Bottom Navigation
+      bottomNavigationBar: _StitchBottomNav(
+        selectedIndex: 0,
+        isDark: isDark,
+        onTap: (index) {
+          if (index == 3) context.goNamed('profile');
+          if (index == 2) context.goNamed('security');
         },
-        tooltip: 'New Conversation',
-        child: const Icon(Icons.add_comment),
       ),
     );
+  }
+
+  Widget _buildHeader(BuildContext context, bool isDark) {
+    return Container(
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 16,
+        left: 24,
+        right: 24,
+        bottom: 16,
+      ),
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppTheme.primaryBlue.withOpacity(0.1)
+            : Colors.white,
+        border: Border(
+          bottom: BorderSide(
+            color: AppTheme.primaryBlue.withOpacity(0.2),
+          ),
+        ),
+      ),
+      child: Column(
+        children: [
+          // Title row
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryBlue,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.shield_rounded,
+                  color: AppTheme.electricCyan,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'IntelCrypt',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    Text(
+                      'SECURE DIRECTORY',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.electricCyan.withOpacity(0.8),
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () => context.goNamed('profile'),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.primaryBlue.withOpacity(0.4),
+                  ),
+                  child: Icon(
+                    Icons.person_add_outlined,
+                    color: isDark ? AppTheme.textPrimary : AppTheme.primaryBlue,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Search bar
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppTheme.primaryBlue.withOpacity(0.4),
+              ),
+              color: isDark
+                  ? AppTheme.primaryBlue.withOpacity(0.3)
+                  : Colors.grey[50],
+            ),
+            child: TextField(
+              controller: _searchController,
+              focusNode: _searchFocusNode,
+              style: Theme.of(context).textTheme.bodyMedium,
+              decoration: InputDecoration(
+                hintText: 'Search encrypted nodes...',
+                hintStyle: TextStyle(
+                  color: AppTheme.textMuted,
+                  fontSize: 14,
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: AppTheme.electricCyan.withOpacity(0.5),
+                ),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Filter chips
+          SizedBox(
+            height: 32,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _FilterChip(
+                  label: 'All Chats',
+                  selected: _selectedFilter == 0,
+                  isDark: isDark,
+                  onTap: () => setState(() => _selectedFilter = 0),
+                ),
+                const SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Encrypted',
+                  selected: _selectedFilter == 1,
+                  isDark: isDark,
+                  onTap: () => setState(() => _selectedFilter = 1),
+                ),
+                const SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Groups',
+                  selected: _selectedFilter == 2,
+                  isDark: isDark,
+                  onTap: () => setState(() => _selectedFilter = 2),
+                ),
+                const SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Archived',
+                  selected: _selectedFilter == 3,
+                  isDark: isDark,
+                  onTap: () => setState(() => _selectedFilter = 3),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, bool isDark) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppTheme.primaryBlue.withOpacity(0.2),
+              border: Border.all(
+                color: AppTheme.electricCyan.withOpacity(0.3),
+              ),
+            ),
+            child: Icon(
+              Icons.chat_bubble_outline,
+              size: 36,
+              color: AppTheme.electricCyan.withOpacity(0.6),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            _searchController.text.isEmpty
+                ? 'No active sessions'
+                : 'No matching nodes',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Start a new encrypted conversation',
+            style: TextStyle(
+              color: AppTheme.textMuted,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, dynamic chatListAsync) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppTheme.errorRed.withOpacity(0.1),
+            ),
+            child: const Icon(
+              Icons.error_outline,
+              size: 48,
+              color: AppTheme.errorRed,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Connection Lost',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            chatListAsync.error.toString(),
+            style: TextStyle(color: AppTheme.textMuted, fontSize: 13),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () => ref.refresh(chatListProvider),
+            icon: const Icon(Icons.refresh),
+            label: const Text('RECONNECT'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Dialog helpers (kept from original) ─────────────────────────────────
+
+  Future<void> _handleArchive(Chat chat) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Archive conversation?'),
+        content: Text('Archive "${chat.name}" conversation.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Archive'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      ref.read(selectedChatProvider.notifier).state = chat.id;
+      await ref.read(chatListProvider.notifier).archiveChat(chat.id);
+      ref.refresh(chatListProvider);
+    }
+  }
+
+  Future<void> _handleDelete(Chat chat) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete conversation?'),
+        content: const Text(
+            'This will permanently delete the conversation and all messages.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.errorRed),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      ref.refresh(chatListProvider);
+    }
   }
 
   void _showNewConversationDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Start a Conversation',
-              style: Theme.of(context).textTheme.titleLarge,
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppTheme.textMuted.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
             const SizedBox(height: 24),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Direct Message'),
-              subtitle: const Text('Send a private message'),
+            Text(
+              'START SECURE SESSION',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 2,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            _ModalOption(
+              icon: Icons.person_outline,
+              title: 'Direct Message',
+              subtitle: 'E2E encrypted private session',
               onTap: () {
                 Navigator.pop(context);
                 _showUserSearchDialog(context);
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.group),
-              title: const Text('Group Chat'),
-              subtitle: const Text('Create a group conversation'),
+            const SizedBox(height: 12),
+            _ModalOption(
+              icon: Icons.group_outlined,
+              title: 'Group Chat',
+              subtitle: 'Create encrypted group channel',
               onTap: () {
                 Navigator.pop(context);
                 _showCreateGroupDialog(context);
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -326,7 +538,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     bool isSearching = false;
     bool isLoading = true;
 
-    // Load all users initially
     Future<void> loadAllUsers(StateSetter setState) async {
       try {
         final results = await ref.read(apiServiceProvider).searchUsers('');
@@ -344,11 +555,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
-          // Load users on first build
           if (isLoading && allUsers.isEmpty) {
             loadAllUsers(setState);
           }
-
           return AlertDialog(
             title: const Text('Find User'),
             content: SizedBox(
@@ -368,19 +577,13 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                               height: 20,
                               child: Padding(
                                 padding: EdgeInsets.all(12),
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
+                                child: CircularProgressIndicator(strokeWidth: 2),
                               ),
                             )
                           : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
                     ),
                     onChanged: (value) async {
                       if (value.isEmpty) {
-                        // Show all users when search is cleared
                         setState(() => searchResults = allUsers);
                       } else if (value.length >= 2) {
                         setState(() => isSearching = true);
@@ -396,14 +599,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                           setState(() => isSearching = false);
                         }
                       } else {
-                        // Filter locally for single character
                         setState(() {
                           searchResults = allUsers
-                              .where(
-                                (u) => u.username.toLowerCase().contains(
-                                  value.toLowerCase(),
-                                ),
-                              )
+                              .where((u) => u.username
+                                  .toLowerCase()
+                                  .contains(value.toLowerCase()))
                               .toList();
                         });
                       }
@@ -414,32 +614,37 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                     child: isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : searchResults.isEmpty
-                        ? Center(
-                            child: Text(
-                              allUsers.isEmpty
-                                  ? 'No users found'
-                                  : 'No matching users',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          )
-                        : ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: searchResults.length,
-                            itemBuilder: (context, index) {
-                              final user = searchResults[index];
-                              return ListTile(
-                                leading: CircleAvatar(
-                                  child: Text(user.username[0].toUpperCase()),
+                            ? Center(
+                                child: Text(
+                                  allUsers.isEmpty
+                                      ? 'No users found'
+                                      : 'No matching users',
                                 ),
-                                title: Text(user.username),
-                                subtitle: Text(user.email),
-                                onTap: () async {
-                                  Navigator.pop(context);
-                                  await _createDirectChat(user.id);
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: searchResults.length,
+                                itemBuilder: (context, index) {
+                                  final user = searchResults[index];
+                                  return ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor: AppTheme.primaryBlue,
+                                      child: Text(
+                                        user.username[0].toUpperCase(),
+                                        style: const TextStyle(
+                                          color: AppTheme.electricCyan,
+                                        ),
+                                      ),
+                                    ),
+                                    title: Text(user.username),
+                                    subtitle: Text(user.email),
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      await _createDirectChat(user.id);
+                                    },
+                                  );
                                 },
-                              );
-                            },
-                          ),
+                              ),
                   ),
                 ],
               ),
@@ -469,16 +674,15 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to create chat: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create chat: $e')),
+        );
       }
     }
   }
 
   void _showCreateGroupDialog(BuildContext context) {
     final nameController = TextEditingController();
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -488,12 +692,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
           children: [
             TextField(
               controller: nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Group Name',
                 hintText: 'Enter group name',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -537,9 +738,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to create group: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create group: $e')),
+        );
       }
     }
   }
@@ -552,35 +753,18 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Mute Notifications',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('Mute Notifications',
+                style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
-            ListTile(
-              title: const Text('1 Hour'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('8 Hours'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('24 Hours'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Until I turn it back on'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
+            ...[
+              '1 Hour',
+              '8 Hours',
+              '24 Hours',
+              'Until I turn it back on'
+            ].map((label) => ListTile(
+                  title: Text(label),
+                  onTap: () => Navigator.pop(context),
+                )),
             const SizedBox(height: 8),
           ],
         ),
@@ -589,174 +773,426 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   }
 }
 
-/// Chat List Tile Widget
-class ChatListTile extends StatelessWidget {
-  final dynamic chat;
-  final VoidCallback onTap;
-  final VoidCallback onSwipeDelete;
-  final VoidCallback onSwipeArchive;
+// ── Chat Tile ─────────────────────────────────────────────────────────────────
 
-  const ChatListTile({
-    Key? key,
+class _StitchChatTile extends StatelessWidget {
+  final Chat chat;
+  final String? currentUserId;
+  final bool isDark;
+  final VoidCallback onTap;
+  final VoidCallback onArchive;
+  final VoidCallback onDelete;
+  final VoidCallback onMute;
+
+  const _StitchChatTile({
     required this.chat,
+    this.currentUserId,
+    required this.isDark,
     required this.onTap,
-    required this.onSwipeDelete,
-    required this.onSwipeArchive,
-  }) : super(key: key);
+    required this.onArchive,
+    required this.onDelete,
+    required this.onMute,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Dismissible(
-      key: Key(chat.id),
-      background: Container(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Icon(
-          Icons.archive_rounded,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
-      secondaryBackground: Container(
-        color: Theme.of(context).colorScheme.error.withOpacity(0.1),
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Icon(
-          Icons.delete_rounded,
-          color: Theme.of(context).colorScheme.error,
-        ),
-      ),
-      onDismissed: (direction) {
-        if (direction == DismissDirection.startToEnd) {
-          onSwipeArchive();
-        } else {
-          onSwipeDelete();
-        }
-      },
-      child: ListTile(
-        onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          radius: 24,
-          backgroundColor: Theme.of(
-            context,
-          ).colorScheme.primary.withOpacity(0.2),
-          backgroundImage: chat.avatarUrl != null
-              ? NetworkImage(chat.avatarUrl!)
-              : null,
-          child: chat.avatarUrl == null
-              ? Icon(
-                  chat.isGroup ? Icons.people_rounded : Icons.person_rounded,
-                  color: Theme.of(context).colorScheme.primary,
-                )
-              : null,
-        ),
-        title: Text(
-          chat.displayName,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Row(
-          children: [
-            Expanded(
-              child: Text(
-                chat.maskedPreview,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.color?.withOpacity(0.6),
-                ),
-              ),
+    final displayName = chat.getDisplayName(currentUserId);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          onLongPress: () => _showContextMenu(context),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.transparent),
             ),
-            if (chat.classificationLevel != 'UNCLASSIFIED')
-              Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _getClassificationColor(chat.classificationLevel),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    chat.classificationLevel.substring(0, 1),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Colors.white,
-                      fontSize: 10,
+            child: Row(
+              children: [
+                // Avatar
+                Stack(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppTheme.primaryBlue,
+                          width: 2,
+                        ),
+                        color: AppTheme.primaryBlue.withOpacity(0.5),
+                      ),
+                      child: chat.avatarUrl != null && chat.avatarUrl!.isNotEmpty
+                          ? ClipOval(
+                              child: Image.network(
+                                chat.avatarUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => _buildInitials(displayName),
+                              ),
+                            )
+                          : _buildInitials(displayName),
                     ),
+                    // Online indicator
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppTheme.successGreen,
+                          border: Border.all(
+                            color: isDark
+                                ? AppTheme.backgroundDark
+                                : Colors.white,
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.electricCyan.withOpacity(0.3),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 12),
+                // Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              displayName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.verified_user,
+                            size: 16,
+                            color: AppTheme.electricCyan,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        chat.lastMessagePreview ?? 'No messages yet',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.textMuted,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-          ],
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              _formatTime(chat.lastMessageAt),
-              style: Theme.of(context).textTheme.labelSmall,
+                const SizedBox(width: 8),
+                // Chevron
+                Icon(
+                  Icons.chevron_right,
+                  color: AppTheme.electricCyan.withOpacity(0.4),
+                  size: 20,
+                ),
+              ],
             ),
-            if (chat.unreadCount > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.error,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    chat.unreadCount > 99 ? '99+' : '${chat.unreadCount}',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Colors.white,
-                      fontSize: 10,
-                    ),
-                  ),
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Color _getClassificationColor(String level) {
-    switch (level) {
-      case 'TOP_SECRET':
-        return const Color(0xFFD32F2F);
-      case 'SECRET':
-        return const Color(0xFFF57C00);
-      case 'CONFIDENTIAL':
-        return const Color(0xFFFBC02D);
-      case 'UNCLASSIFIED':
-      default:
-        return const Color(0xFF388E3C);
-    }
+  Widget _buildInitials(String name) {
+    return Center(
+      child: Text(
+        name.isNotEmpty ? name[0].toUpperCase() : '?',
+        style: const TextStyle(
+          color: AppTheme.electricCyan,
+          fontWeight: FontWeight.w700,
+          fontSize: 18,
+        ),
+      ),
+    );
   }
 
-  String _formatTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
+  void _showContextMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.archive_outlined),
+              title: const Text('Archive'),
+              onTap: () {
+                Navigator.pop(context);
+                onArchive();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications_off_outlined),
+              title: const Text('Mute'),
+              onTap: () {
+                Navigator.pop(context);
+                onMute();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: AppTheme.errorRed),
+              title: const Text('Delete',
+                  style: TextStyle(color: AppTheme.errorRed)),
+              onTap: () {
+                Navigator.pop(context);
+                onDelete();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-    if (difference.inDays > 0) {
-      return '${difference.inDays}d ago';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m ago';
-    } else {
-      return 'now';
-    }
+// ── Filter Chip ──────────────────────────────────────────────────────────────
+
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(100),
+          color: selected
+              ? AppTheme.electricCyan
+              : AppTheme.primaryBlue.withOpacity(0.4),
+          border: Border.all(
+            color: selected
+                ? AppTheme.electricCyan
+                : AppTheme.primaryBlue.withOpacity(0.2),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected
+                ? AppTheme.backgroundDeep
+                : (isDark ? AppTheme.textSecondary : AppTheme.textMuted),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Modal Option ─────────────────────────────────────────────────────────────
+
+class _ModalOption extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _ModalOption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
+            color: AppTheme.primaryBlue.withOpacity(0.1),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppTheme.primaryBlue.withOpacity(0.4),
+                ),
+                child: Icon(icon, color: AppTheme.electricCyan),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: AppTheme.electricCyan.withOpacity(0.4),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Bottom Navigation ────────────────────────────────────────────────────────
+
+class _StitchBottomNav extends StatelessWidget {
+  final int selectedIndex;
+  final bool isDark;
+  final Function(int) onTap;
+
+  const _StitchBottomNav({
+    required this.selectedIndex,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppTheme.primaryBlue.withOpacity(0.4)
+            : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: AppTheme.primaryBlue.withOpacity(0.4),
+          ),
+        ),
+      ),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.bottom + 8,
+        top: 12,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _NavItem(
+            icon: Icons.chat_bubble,
+            label: 'Chats',
+            selected: selectedIndex == 0,
+            onTap: () => onTap(0),
+          ),
+          _NavItem(
+            icon: Icons.lock_outline,
+            label: 'Vault',
+            selected: selectedIndex == 1,
+            onTap: () => onTap(1),
+          ),
+          _NavItem(
+            icon: Icons.key_outlined,
+            label: 'Security',
+            selected: selectedIndex == 2,
+            onTap: () => onTap(2),
+          ),
+          _NavItem(
+            icon: Icons.settings_outlined,
+            label: 'Settings',
+            selected: selectedIndex == 3,
+            onTap: () => onTap(3),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 24,
+            color: selected ? AppTheme.electricCyan : AppTheme.textMuted,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              color: selected ? AppTheme.electricCyan : AppTheme.textMuted,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

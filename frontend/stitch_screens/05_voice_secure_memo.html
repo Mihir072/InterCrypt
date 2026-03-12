@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IntelCrypt Voice Message</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e2a38",
+                        "accent": "#00f2ff",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#16191c",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(30, 42, 56, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .waveform-bar {
+            width: 3px;
+            background-color: #00f2ff;
+            border-radius: 99px;
+            box-shadow: 0 0 8px rgba(0, 242, 255, 0.5);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+<!-- Overlay Container -->
+<div class="relative flex h-full max-h-[800px] w-full max-w-[480px] flex-col overflow-hidden rounded-xl bg-background-light dark:bg-background-dark shadow-2xl border border-primary/20 dark:border-primary/50">
+<!-- Header -->
+<div class="flex items-center p-4 justify-between border-b border-primary/10 dark:border-primary/30">
+<div class="text-slate-600 dark:text-slate-400 flex size-10 items-center justify-center cursor-pointer hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined">close</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center">IntelCrypt Secure Voice</h2>
+<div class="flex w-10 items-center justify-end">
+<button class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Recording Interface -->
+<div class="flex-1 flex flex-col items-center justify-center px-6 py-10 gap-8">
+<!-- Encryption Status -->
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 dark:bg-primary/40 border border-primary/20">
+<span class="material-symbols-outlined text-accent text-sm">lock</span>
+<span class="text-xs font-medium tracking-widest uppercase text-slate-500 dark:text-slate-300">End-to-End Encrypted</span>
+</div>
+<!-- Visualizer Card (Glassmorphic) -->
+<div class="w-full aspect-square glass-panel rounded-xl flex flex-col items-center justify-center p-8 gap-12 relative overflow-hidden">
+<!-- Decorative background elements -->
+<div class="absolute -top-24 -right-24 w-48 h-48 bg-accent/10 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-24 -left-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl"></div>
+<!-- Live Waveform -->
+<div class="flex items-center justify-center gap-1.5 h-32 w-full">
+<div class="waveform-bar h-12"></div>
+<div class="waveform-bar h-20"></div>
+<div class="waveform-bar h-28"></div>
+<div class="waveform-bar h-16"></div>
+<div class="waveform-bar h-24"></div>
+<div class="waveform-bar h-32"></div>
+<div class="waveform-bar h-20"></div>
+<div class="waveform-bar h-28"></div>
+<div class="waveform-bar h-14"></div>
+<div class="waveform-bar h-22"></div>
+<div class="waveform-bar h-26"></div>
+<div class="waveform-bar h-18"></div>
+<div class="waveform-bar h-12"></div>
+</div>
+<!-- Timer Section -->
+<div class="flex flex-col items-center gap-2">
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-center">
+<span class="text-4xl font-bold text-slate-900 dark:text-slate-100">00</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-500">Min</span>
+</div>
+<span class="text-4xl font-light text-primary/40 mb-4">:</span>
+<div class="flex flex-col items-center">
+<span class="text-4xl font-bold text-accent">12</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-500">Sec</span>
+</div>
+</div>
+</div>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium animate-pulse">Recording Audio...</p>
+</div>
+<!-- Controls Footer -->
+<div class="p-6 bg-primary/5 dark:bg-primary/20 border-t border-primary/10 dark:border-primary/30">
+<div class="flex gap-4 justify-between items-center mb-6">
+<button class="flex-1 flex items-center justify-center gap-2 h-14 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-all">
+<span class="material-symbols-outlined text-xl">delete_sweep</span>
+<span>Discard</span>
+</button>
+<button class="flex-1 flex items-center justify-center gap-2 h-14 rounded-xl bg-primary text-white font-bold hover:shadow-lg hover:shadow-accent/20 transition-all">
+<span class="material-symbols-outlined text-xl">send</span>
+<span>Send Secure</span>
+</button>
+</div>
+<!-- Bottom Navigation Mockup -->
+<div class="flex justify-around items-center pt-2">
+<a class="text-slate-400 hover:text-accent flex flex-col items-center gap-1" href="#">
+<span class="material-symbols-outlined">home</span>
+</a>
+<a class="text-slate-400 hover:text-accent flex flex-col items-center gap-1" href="#">
+<span class="material-symbols-outlined">lock</span>
+</a>
+<div class="relative -top-6">
+<div class="bg-primary p-4 rounded-full border-4 border-background-light dark:border-background-dark text-accent shadow-xl">
+<span class="material-symbols-outlined text-3xl">mic</span>
+</div>
+</div>
+<a class="text-slate-400 hover:text-accent flex flex-col items-center gap-1" href="#">
+<span class="material-symbols-outlined">group</span>
+</a>
+<a class="text-slate-400 hover:text-accent flex flex-col items-center gap-1" href="#">
+<span class="material-symbols-outlined">settings</span>
+</a>
+</div>
+</div>
+<!-- Home Indicator -->
+<div class="h-1.5 w-32 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-2 mt-4 shrink-0"></div>
+</div>
+</body></html>

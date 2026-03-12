@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../services/services.dart';
-import '../widgets/custom_input_field.dart';
+import '../theme/app_theme.dart';
 
-/// Lock Screen - Displayed when session times out or manually locked
+/// Lock Screen — Stitch cyberpunk session lock
 class LockScreen extends ConsumerStatefulWidget {
   const LockScreen({Key? key}) : super(key: key);
 
@@ -30,8 +30,6 @@ class _LockScreenState extends ConsumerState<LockScreen>
     super.initState();
     _passwordController = TextEditingController();
     _biometricService = BiometricService(ref.read(secureStorageProvider));
-
-    // Setup animation
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -41,8 +39,6 @@ class _LockScreenState extends ConsumerState<LockScreen>
       curve: Curves.easeIn,
     );
     _animationController.forward();
-
-    // Check biometric availability
     _checkBiometric();
   }
 
@@ -57,49 +53,33 @@ class _LockScreenState extends ConsumerState<LockScreen>
     final isAvailable = await _biometricService.isBiometricAvailable();
     final isEnabled = await _biometricService.isBiometricEnabled();
     if (mounted) {
-      setState(() {
-        _isBiometricAvailable = isAvailable && isEnabled;
-      });
+      setState(() => _isBiometricAvailable = isAvailable && isEnabled);
     }
   }
 
   Future<void> _handleUnlock() async {
     if (_passwordController.text.isEmpty) {
-      setState(() {
-        _errorMessage = 'Please enter your password';
-      });
+      setState(() => _errorMessage = 'Enter vault key to proceed');
       return;
     }
-
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
-
-    // Verify password by attempting login
     final authNotifier = ref.read(authProvider.notifier);
     final currentUser = ref.read(currentUserProvider);
-
     if (currentUser == null) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Session expired. Please login again.';
+        _errorMessage = 'Session expired. Re-authentication required.';
       });
-      // Logout and redirect to login
       await authNotifier.logout();
       if (mounted) context.go('/login');
       return;
     }
-
-    // In a real app, you'd verify the password against the backend
-    // For now, we'll just check if user is authenticated
     await Future.delayed(const Duration(milliseconds: 500));
-
     if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-      // Unlock and go back
+      setState(() => _isLoading = false);
       context.pop();
     }
   }
@@ -109,50 +89,37 @@ class _LockScreenState extends ConsumerState<LockScreen>
       final authenticated = await _biometricService.authenticate(
         reason: 'Unlock IntelCrypt',
       );
-
-      if (authenticated && mounted) {
-        // Unlock successful
-        context.pop();
-      }
+      if (authenticated && mounted) context.pop();
     } on BiometricException catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = e.message;
-        });
-      }
+      if (mounted) setState(() => _errorMessage = e.message);
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = 'Biometric unlock failed';
-        });
-      }
+      if (mounted) setState(() => _errorMessage = 'Biometric unlock failed');
     }
   }
 
   Future<void> _handleLogout() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
+      builder: (ctx) => AlertDialog(
+        title: const Text('Terminate Session'),
         content: const Text(
-          'Are you sure you want to logout? You will need to login again.',
+          'You will be logged out and all local data will remain encrypted. Re-authentication will be required.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () => Navigator.of(ctx).pop(false),
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: AppTheme.errorRed,
             ),
-            child: const Text('Logout'),
+            child: const Text('Terminate'),
           ),
         ],
       ),
     );
-
     if (confirmed == true && mounted) {
       await ref.read(authProvider.notifier).logout();
       if (mounted) context.go('/login');
@@ -164,228 +131,298 @@ class _LockScreenState extends ConsumerState<LockScreen>
     final currentUser = ref.watch(currentUserProvider);
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primary.withAlpha(10),
-              Theme.of(context).colorScheme.surface,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Lock icon
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Theme.of(context).colorScheme.primary,
-                            Theme.of(context).colorScheme.tertiary,
-                          ],
-                        ),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withOpacity(0.3),
-                            blurRadius: 20,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.lock_rounded,
-                        size: 50,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Title
-                    Text(
-                      'Session Locked',
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Subtitle
-                    Text(
-                      currentUser != null
-                          ? 'Welcome back, ${currentUser.username}'
-                          : 'Your session has been locked for security',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).textTheme.bodyMedium?.color?.withOpacity(0.6),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 40),
-
-                    // Error message
-                    if (_errorMessage != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.error.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.error.withOpacity(0.3),
-                          ),
-                        ),
-                        child: Text(
-                          _errorMessage!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-
-                    // Password field
-                    CustomInputField(
-                      controller: _passwordController,
-                      label: 'Password',
-                      hintText: 'Enter your password',
-                      obscureText: !_showPassword,
-                      prefixIcon: Icons.lock_rounded,
-                      suffixIcon: GestureDetector(
-                        onTap: () =>
-                            setState(() => _showPassword = !_showPassword),
-                        child: Icon(
-                          _showPassword
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                        ),
-                      ),
-                      enabled: !_isLoading,
-                      onChanged: (value) {
-                        if (_errorMessage != null) {
-                          setState(() => _errorMessage = null);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Unlock button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleUnlock,
-                        child: _isLoading
-                            ? SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Theme.of(context).colorScheme.onPrimary,
-                                  ),
-                                ),
-                              )
-                            : const Text(
-                                'Unlock',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Biometric unlock button
-                    if (_isBiometricAvailable)
-                      OutlinedButton.icon(
-                        onPressed: _isLoading ? null : _handleBiometricUnlock,
-                        icon: const Icon(Icons.fingerprint_rounded),
-                        label: const Text('Unlock with Biometric'),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 56),
-                        ),
-                      ),
-
-                    const SizedBox(height: 24),
-
-                    // Logout button
-                    TextButton.icon(
-                      onPressed: _isLoading ? null : _handleLogout,
-                      icon: const Icon(Icons.logout_rounded),
-                      label: const Text('Logout'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Security message
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withOpacity(0.2),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Your session was locked for security. Enter your password to continue.',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.color
-                                        ?.withOpacity(0.8),
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+      backgroundColor: AppTheme.backgroundDeep,
+      body: Stack(
+        children: [
+          // Background glow
+          Positioned(
+            top: -80,
+            left: -80,
+            child: Container(
+              width: 250,
+              height: 250,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.electricCyan.withOpacity(0.04),
+                    Colors.transparent,
                   ],
                 ),
               ),
             ),
           ),
-        ),
+
+          SafeArea(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Lock icon
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppTheme.primaryBlue,
+                              AppTheme.backgroundDeep,
+                            ],
+                          ),
+                          border: Border.all(
+                            color: AppTheme.electricCyan.withOpacity(0.3),
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.electricCyan.withOpacity(0.12),
+                              blurRadius: 30,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.lock_outline,
+                          size: 44,
+                          color: AppTheme.electricCyan,
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+
+                      // Title
+                      Text(
+                        'Vault Locked',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPrimary,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        currentUser != null
+                            ? 'Welcome back, ${currentUser.username}'
+                            : 'SESSION SECURED',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.electricCyan.withOpacity(0.6),
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+
+                      // Error
+                      if (_errorMessage != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppTheme.errorRed.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppTheme.errorRed.withOpacity(0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline,
+                                  color: AppTheme.errorRed, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _errorMessage!,
+                                  style: const TextStyle(
+                                    color: AppTheme.errorRed,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+
+                      // Password field
+                      Text(
+                        'VAULT KEY',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textSecondary,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppTheme.primaryBlue.withOpacity(0.5),
+                          ),
+                          color: AppTheme.backgroundDeep.withOpacity(0.5),
+                        ),
+                        child: TextField(
+                          controller: _passwordController,
+                          obscureText: !_showPassword,
+                          enabled: !_isLoading,
+                          style: const TextStyle(
+                            color: AppTheme.textPrimary,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Enter vault key',
+                            hintStyle: TextStyle(color: AppTheme.textMuted),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.all(16),
+                            suffixIcon: GestureDetector(
+                              onTap: () => setState(
+                                  () => _showPassword = !_showPassword),
+                              child: Icon(
+                                _showPassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: AppTheme.textMuted,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                          onChanged: (v) {
+                            if (_errorMessage != null) {
+                              setState(() => _errorMessage = null);
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Unlock button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _handleUnlock,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.electricCyan,
+                            foregroundColor: AppTheme.backgroundDeep,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppTheme.backgroundDeep,
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Text(
+                                      'DECRYPT & UNLOCK',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Icon(Icons.lock_open, size: 20),
+                                  ],
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Biometric
+                      if (_isBiometricAvailable)
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: OutlinedButton.icon(
+                            onPressed:
+                                _isLoading ? null : _handleBiometricUnlock,
+                            icon: const Icon(Icons.fingerprint, size: 24),
+                            label: const Text(
+                              'BIOMETRIC UNLOCK',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppTheme.electricCyan,
+                              side: BorderSide(
+                                color:
+                                    AppTheme.electricCyan.withOpacity(0.4),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 24),
+
+                      // Logout
+                      TextButton.icon(
+                        onPressed: _isLoading ? null : _handleLogout,
+                        icon: const Icon(Icons.logout, size: 18),
+                        label: const Text('Terminate Session'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.errorRed.withOpacity(0.8),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Security info
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppTheme.primaryBlue.withOpacity(0.3),
+                          ),
+                          color: AppTheme.primaryBlue.withOpacity(0.08),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              size: 18,
+                              color: AppTheme.electricCyan.withOpacity(0.5),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Your vault was locked for security. All data remains encrypted at rest.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.textMuted,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

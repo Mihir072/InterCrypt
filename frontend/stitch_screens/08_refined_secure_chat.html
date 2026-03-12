@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IntelCrypt Secure Chat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e2a38",
+                        "accent": "#3b82f6",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#16191c",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(30, 42, 56, 0.5);
+            border-radius: 10px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<!-- Main Container -->
+<div class="relative flex h-screen w-full flex-col overflow-hidden max-w-md mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl">
+<!-- Sticky Header -->
+<header class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3 w-full">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400">arrow_back</span>
+</button>
+<div class="relative">
+<div class="size-10 rounded-full bg-primary flex items-center justify-center text-white font-bold ring-2 ring-accent/20 overflow-hidden" data-alt="Profile picture of a male contact" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBCau_BUoHhVyGtPSk4Vm53jJ9whXHAf31rgJezK9ISrlbRiJBn5FM9aFKbrWRRdhHr0LzvMJR75ROHf1dizO75wQcF_JaoFPVx62RLBAaBk0dRWScyqMJ4bPnEIOR3Vk_mGAc16yjdTlZRxzFJvu59qWcPPsxl9fnAwlEO_obQusxQpG0Kge9LxwLQC9B_xnramRq2awBQAaRU6uvZ5V6N8MqC-QOau-wKfXIUK2FwUzN84YuIWlu1U0Jbr3-GYbjfW1ytKRFEKQM"); background-size: cover;'>
+</div>
+<div class="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full border-2 border-background-dark"></div>
+</div>
+<div class="flex-1 min-w-0">
+<h2 class="text-base font-bold truncate leading-none">Julian Assange</h2>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px] text-accent">verified_user</span>
+<span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">E2E Encrypted</span>
+</div>
+</div>
+<div class="flex gap-1">
+<button class="size-10 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400">videocam</span>
+</button>
+<button class="size-10 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400">more_vert</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Chat Area -->
+<main class="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
+<div class="flex flex-col items-center">
+<span class="px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800/50 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Today</span>
+</div>
+<!-- Contact Message -->
+<div class="flex items-end gap-2 max-w-[85%]">
+<div class="size-8 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0 overflow-hidden" data-alt="Small profile thumbnail" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAPJjceWXw2KYCKUYHsYgj6rAM9Zo3SlJ70_W9Q0-uuCVBYFe0u-Azv04OtrqEU8hYnbp512pqsUtMokIPcyezjnDd2OFLnzexCUz2EmVLrKrbtONZQ_AYGX-6O44k51pRpxD1lU_FbNAkvLAtwSZD0lpody3xSBCR1nEamima5RazQl1Rk2Vh4IADerSiAeWoRKTRJ7bgOREIJ0xEICzh0QqHE8gbA7cEWSKUxljXCj5Vqk4cCdDnoAP5J2jhCZPv4GWzyenFUrV8"); background-size: cover;'></div>
+<div class="flex flex-col gap-1">
+<div class="bg-slate-200 dark:bg-slate-800 p-3 rounded-2xl rounded-bl-none shadow-sm">
+<p class="text-[15px] leading-relaxed">The encryption protocols are updated. Everything is secure for the transmission.</p>
+</div>
+<span class="text-[10px] text-slate-500 ml-1">10:42 AM</span>
+</div>
+</div>
+<!-- User Message -->
+<div class="flex flex-col items-end gap-1 ml-auto max-w-[85%]">
+<div class="bg-primary text-white p-3 rounded-2xl rounded-br-none shadow-lg shadow-primary/10">
+<p class="text-[15px] leading-relaxed">Confirmed. I've enabled the hardware key for this session. Proceed with the data leak brief.</p>
+</div>
+<div class="flex items-center gap-1 mr-1">
+<span class="text-[10px] text-slate-500">10:43 AM</span>
+<span class="material-symbols-outlined text-[14px] text-accent">done_all</span>
+</div>
+</div>
+<!-- Encryption Badge System Notice -->
+<div class="flex justify-center">
+<div class="flex items-center gap-2 px-4 py-2 bg-primary/5 dark:bg-primary/20 border border-primary/10 rounded-xl">
+<span class="material-symbols-outlined text-primary dark:text-accent text-[18px]">lock</span>
+<p class="text-[11px] text-slate-600 dark:text-slate-400 font-medium text-center">Messages are secured with AES-256 and RSA-4096. No one outside of this chat can read them.</p>
+</div>
+</div>
+<!-- Contact Message with Attachment -->
+<div class="flex items-end gap-2 max-w-[85%]">
+<div class="size-8 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0 overflow-hidden" data-alt="Small profile thumbnail" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC399RGAqjjvpEOn59kvXInfLHlQIhqSEnWy5kOKdfsur9olGZCmNxtHArTvNQV2G7fRGY6hhcaWz_gwsFlF2UgIuibHEHH3oWUrnFhwlD99owmywk8sDvLYybozgYp56-r1TMp4HiHdyKeGWPWst5fEpMKEskYVjnKYrIkeggpB6XkG1aTp3HCYNoxdrKAifNWV7luglY-7qtB2uEnM_6scwljsEdtKj9DLHtA3esHqRYOwEMge4QRdxASWttiuohginEV4x_-m2c"); background-size: cover;'></div>
+<div class="flex flex-col gap-1">
+<div class="bg-slate-200 dark:bg-slate-800 p-3 rounded-2xl rounded-bl-none shadow-sm space-y-2">
+<div class="flex items-center gap-3 p-2 bg-white/50 dark:bg-black/20 rounded-lg border border-slate-300 dark:border-slate-700">
+<div class="size-10 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white">description</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-bold truncate">intel_brief_2024.pdf</p>
+<p class="text-[10px] text-slate-500">2.4 MB • Encrypted PDF</p>
+</div>
+<span class="material-symbols-outlined text-slate-400">download</span>
+</div>
+<p class="text-[15px] leading-relaxed">Here is the summary of the operations.</p>
+</div>
+<span class="text-[10px] text-slate-500 ml-1">10:45 AM</span>
+</div>
+</div>
+<!-- User Message (Voice Note Mockup) -->
+<div class="flex flex-col items-end gap-1 ml-auto max-w-[85%]">
+<div class="bg-primary text-white p-3 rounded-2xl rounded-br-none shadow-lg shadow-primary/10 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-accent">play_circle</span>
+<div class="flex-1 h-8 flex items-center gap-[2px]">
+<div class="h-2 w-1 bg-white/30 rounded-full"></div>
+<div class="h-4 w-1 bg-white/60 rounded-full"></div>
+<div class="h-6 w-1 bg-white rounded-full"></div>
+<div class="h-3 w-1 bg-white/60 rounded-full"></div>
+<div class="h-5 w-1 bg-white rounded-full"></div>
+<div class="h-7 w-1 bg-white rounded-full"></div>
+<div class="h-4 w-1 bg-white/60 rounded-full"></div>
+<div class="h-2 w-1 bg-white/30 rounded-full"></div>
+<div class="h-5 w-1 bg-white/60 rounded-full"></div>
+<div class="h-3 w-1 bg-white/30 rounded-full"></div>
+</div>
+<span class="text-[12px] font-medium">0:14</span>
+</div>
+</div>
+<div class="flex items-center gap-1 mr-1">
+<span class="text-[10px] text-slate-500">10:46 AM</span>
+<span class="material-symbols-outlined text-[14px] text-accent">done_all</span>
+</div>
+</div>
+</main>
+<!-- Input Area -->
+<footer class="p-4 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-end gap-2">
+<div class="flex-1 bg-slate-200 dark:bg-slate-800 rounded-2xl flex items-end p-2 transition-all focus-within:ring-2 focus-within:ring-accent/50">
+<button class="size-10 flex items-center justify-center rounded-full text-slate-500 hover:text-accent transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-1 max-h-32 resize-none font-display" placeholder="Type a secure message..." rows="1"></textarea>
+<button class="size-10 flex items-center justify-center rounded-full text-slate-500 hover:text-accent transition-colors">
+<span class="material-symbols-outlined">sentiment_satisfied</span>
+</button>
+</div>
+<div class="flex gap-2">
+<button class="size-11 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined">mic</span>
+</button>
+<button class="size-11 flex items-center justify-center rounded-full bg-primary text-white hover:bg-slate-700 shadow-lg shadow-primary/20 transition-all active:scale-95">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+<!-- Bottom Safety Indicator -->
+<div class="mt-3 flex items-center justify-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest">
+<span class="material-symbols-outlined text-[12px]">shield</span>
+<span>End-to-End Encryption Active</span>
+</div>
+</footer>
+</div>
+</body></html>

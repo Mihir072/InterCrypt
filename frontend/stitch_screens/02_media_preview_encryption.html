@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e2a38",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#16191c",
+                        "cyan-electric": "#00f2ff",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
+<div class="relative flex h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-hidden max-w-md mx-auto border-x border-primary/10 dark:border-primary/30">
+<!-- TopAppBar -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between z-10">
+<div class="text-slate-900 dark:text-slate-100 flex size-12 shrink-0 items-center justify-start cursor-pointer">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center font-display">IntelCrypt Media</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex items-center justify-center rounded-xl h-12 bg-transparent text-slate-900 dark:text-slate-100">
+<span class="material-symbols-outlined">verified_user</span>
+</button>
+</div>
+</div>
+<!-- Main Content Area -->
+<div class="flex-1 relative overflow-hidden px-4 py-2">
+<div class="relative h-full w-full rounded-xl overflow-hidden border border-primary/20 shadow-2xl">
+<!-- Full screen map/document preview -->
+<div class="absolute inset-0 bg-center bg-no-repeat bg-cover" data-alt="Detailed tactical military map of urban terrain" data-location="Berlin" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDj_T5apY6yqNFLNjJY91OWQ3u9DFaRX3WWIRcp6lQoqs2Vr_WmrRs93pQH9MFpE_8vzFes5CQoW3cTSPH97gpQg0h-XV0kPOEkQWn07NIN2km49oWtwcjdQbX1y1OcwrRjEm1uV0lEJ4GIJx37XaFqCXSpO-uAtx35bC-HQYp8GrowwLmsz3rRxIccw0zxNY_VVTuqf4XjsGiBU-tGs5HdFFiyTTwTdMO37rc6fCUB-YeAAPMNK9JGkAbGbLcmBXThe9nKiABD3ws");'>
+</div>
+<!-- Dark Overlay for Readability -->
+<div class="absolute inset-0 bg-background-dark/60 backdrop-blur-[2px]"></div>
+<!-- Central Encryption Ring -->
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<div class="relative flex items-center justify-center">
+<!-- Progress Ring (SVG) -->
+<svg class="w-48 h-48 transform -rotate-90">
+<circle class="text-primary/40" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-cyan-electric" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-dasharray="552.92" stroke-dashoffset="138.23" stroke-width="8"></circle>
+</svg>
+<!-- Center Content -->
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-4xl font-bold font-display text-cyan-electric">75%</span>
+<span class="text-[10px] uppercase tracking-widest text-slate-300">Encrypted</span>
+</div>
+</div>
+<div class="mt-6 text-center">
+<p class="text-lg font-bold text-white font-display">Encrypting File...</p>
+<p class="text-xs text-cyan-electric/80 font-medium mt-1 tracking-widest uppercase">AES-256 Active</p>
+</div>
+</div>
+<!-- Floating Metadata Badge (Mobile sidebar equivalent) -->
+<div class="absolute bottom-6 left-4 right-4 bg-background-dark/80 backdrop-blur-md border border-primary/40 rounded-lg p-4">
+<div class="grid grid-cols-3 gap-4">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase text-slate-400 font-bold">Size</span>
+<span class="text-sm font-medium text-white">4.2 MB</span>
+</div>
+<div class="flex flex-col border-x border-primary/30 px-4">
+<span class="text-[10px] uppercase text-slate-400 font-bold">Protocol</span>
+<span class="text-sm font-medium text-white">AES-256</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] uppercase text-slate-400 font-bold text-right">Status</span>
+<span class="text-sm font-medium text-cyan-electric">Processing</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Actions -->
+<div class="p-6 pb-8 bg-background-light dark:bg-background-dark">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50" disabled="">
+<span>Confirm &amp; Send</span>
+<span class="material-symbols-outlined text-xl">send</span>
+</button>
+<p class="text-center text-[10px] text-slate-500 mt-4 uppercase tracking-[0.2em]">End-to-end encrypted transmission</p>
+</div>
+</div>
+</body></html>

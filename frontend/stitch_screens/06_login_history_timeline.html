@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IntelCrypt - Login History</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e2a38",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#16191c",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .timeline-line {
+            width: 2px;
+            background: linear-gradient(to bottom, #1e2a38 0%, #2e3033 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10 dark:border-primary/30">
+<div class="flex items-center p-4 justify-between max-w-2xl mx-auto w-full">
+<div class="flex items-center gap-3">
+<div class="bg-primary/20 dark:bg-primary p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary dark:text-slate-100">shield_lock</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">Security Center</h1>
+</div>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-primary/10 dark:hover:bg-primary/40 rounded-full transition-colors">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+<button class="p-2 hover:bg-primary/10 dark:hover:bg-primary/40 rounded-full transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-2xl mx-auto w-full p-4 overflow-y-auto">
+<div class="mb-8">
+<h2 class="text-2xl font-bold text-primary dark:text-slate-100 mb-1">Login History</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Review recent access to your IntelCrypt account</p>
+</div>
+<div class="relative">
+<div class="absolute left-[19px] top-4 bottom-4 w-0.5 bg-primary/20 dark:bg-primary/40"></div>
+<div class="space-y-8">
+<div class="relative pl-12">
+<div class="absolute left-0 top-1 size-10 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-xl">smartphone</span>
+</div>
+<div class="bg-white dark:bg-primary/20 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-primary/30">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-lg">iPhone 15 Pro</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">Success</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-500 dark:text-slate-400">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>San Francisco, USA</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">lan</span>
+<span>192.168.1.45</span>
+</div>
+</div>
+<p class="mt-3 text-xs font-medium text-slate-400 dark:text-slate-500">Active now</p>
+</div>
+</div>
+<div class="relative pl-12">
+<div class="absolute left-0 top-1 size-10 rounded-full bg-rose-500/10 dark:bg-rose-500/20 border-2 border-rose-500 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-rose-600 dark:text-rose-400 text-xl">desktop_windows</span>
+</div>
+<div class="bg-white dark:bg-primary/20 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-primary/30">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-lg">Windows Desktop</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30">Failed</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-500 dark:text-slate-400">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>Moscow, Russia</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">lan</span>
+<span>103.45.212.11</span>
+</div>
+</div>
+<p class="mt-3 text-xs font-medium text-slate-400 dark:text-slate-500">2 hours ago</p>
+<div class="mt-3 pt-3 border-t border-slate-100 dark:border-primary/20">
+<button class="text-xs font-bold text-primary dark:text-slate-100 flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-sm">security</span> Not you? Secure account
+                            </button>
+</div>
+</div>
+</div>
+<div class="relative pl-12">
+<div class="absolute left-0 top-1 size-10 rounded-full bg-slate-500/10 dark:bg-primary border-2 border-primary/50 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-primary dark:text-slate-100 text-xl">laptop_mac</span>
+</div>
+<div class="bg-white dark:bg-primary/20 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-primary/30">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-lg">MacBook Pro 16"</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">Success</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-500 dark:text-slate-400">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>San Francisco, USA</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">lan</span>
+<span>192.168.1.45</span>
+</div>
+</div>
+<p class="mt-3 text-xs font-medium text-slate-400 dark:text-slate-500">Yesterday, 14:22</p>
+</div>
+</div>
+<div class="relative pl-12">
+<div class="absolute left-0 top-1 size-10 rounded-full bg-slate-500/10 dark:bg-primary border-2 border-primary/50 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-primary dark:text-slate-100 text-xl">tablet_android</span>
+</div>
+<div class="bg-white dark:bg-primary/20 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-primary/30">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-lg">Samsung Galaxy Tab</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">Success</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-500 dark:text-slate-400">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>London, UK</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">lan</span>
+<span>82.44.12.190</span>
+</div>
+</div>
+<p class="mt-3 text-xs font-medium text-slate-400 dark:text-slate-500">Oct 24, 2023, 09:15</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-center">
+<button class="text-sm font-semibold px-6 py-2 rounded-full border border-primary/20 dark:border-primary/40 hover:bg-primary hover:text-white transition-all">
+                Load older activity
+            </button>
+</div>
+</main>
+<nav class="sticky bottom-0 bg-background-light dark:bg-background-dark border-t border-primary/10 dark:border-primary/30 px-6 py-3 pb-8">
+<div class="max-w-2xl mx-auto flex justify-between items-center">
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary dark:hover:text-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary dark:hover:text-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Assets</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary dark:text-slate-100" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">History</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary dark:hover:text-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>

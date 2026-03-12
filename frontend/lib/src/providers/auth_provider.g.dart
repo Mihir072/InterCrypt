@@ -87,13 +87,13 @@ final authErrorProvider = AutoDisposeProvider<String?>.internal(
 );
 
 typedef AuthErrorRef = AutoDisposeProviderRef<String?>;
-String _$apiServiceHash() => r'18fe2dcd1d4c468563ada199a6602cf82795e9dd';
+String _$apiServiceHash() => r'd7992e4ce9619eec0a6385b0efa233e3fc1cdd41';
 
-/// API Service provider
+/// API Service provider — kept alive for app lifetime (non-auto-dispose).
 ///
 /// Copied from [apiService].
 @ProviderFor(apiService)
-final apiServiceProvider = AutoDisposeProvider<ApiService>.internal(
+final apiServiceProvider = Provider<ApiService>.internal(
   apiService,
   name: r'apiServiceProvider',
   debugGetCreateSourceHash:
@@ -102,15 +102,14 @@ final apiServiceProvider = AutoDisposeProvider<ApiService>.internal(
   allTransitiveDependencies: null,
 );
 
-typedef ApiServiceRef = AutoDisposeProviderRef<ApiService>;
-String _$secureStorageHash() => r'2d1b50b6b0f996e6de362851704ccbc88b980cd8';
+typedef ApiServiceRef = ProviderRef<ApiService>;
+String _$secureStorageHash() => r'f4ad5ba37b951008ef111b1b00d7ff6eaa56e2be';
 
-/// Secure Storage provider
+/// Secure Storage provider — kept alive for app lifetime (non-auto-dispose).
 ///
 /// Copied from [secureStorage].
 @ProviderFor(secureStorage)
-final secureStorageProvider =
-    AutoDisposeProvider<SecureStorageService>.internal(
+final secureStorageProvider = Provider<SecureStorageService>.internal(
   secureStorage,
   name: r'secureStorageProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -120,6 +119,6 @@ final secureStorageProvider =
   allTransitiveDependencies: null,
 );
 
-typedef SecureStorageRef = AutoDisposeProviderRef<SecureStorageService>;
+typedef SecureStorageRef = ProviderRef<SecureStorageService>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

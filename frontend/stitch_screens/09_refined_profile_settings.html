@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IntelCrypt - Profile &amp; Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e2a38",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#16191c",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen pb-24">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-primary/30 px-4 py-4">
+<div class="flex items-center justify-between max-w-2xl mx-auto">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100 cursor-pointer">arrow_back</span>
+<h1 class="text-xl font-bold tracking-tight">Security Profile</h1>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-red-500">logout</span>
+</button>
+</div>
+</div>
+</header>
+<main class="max-w-2xl mx-auto px-4 py-6 space-y-8">
+<!-- Profile Section -->
+<section class="flex flex-col items-center text-center space-y-4">
+<div class="relative group">
+<div class="size-32 rounded-full border-4 border-primary/50 overflow-hidden bg-primary/20" data-alt="Professional portrait of Alex Rivera in a suit">
+<img alt="Alex Rivera" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByhxwo5zv1jgwyyd5jn9QlSDhtyHTsRLRgKhlo9PFHeD57Zpb_JSMh2-C_Ur3RO788KkcKUah7VDUPqDgIu4-OHuW2Aocb9a_azNKq-1VKjOOPPApvIRgtaCumJ2SobUmvxXOlbhI-6aH3d8IdfSMyV08VcoLSaTDftrI4DxOCPlBMY7p253TQ8_3siRID8P7TWyfQ_v9UR42rrIP9W5STbdqn2XWlXFtQlnIDgGOPcyRl89TKInjfG6Yodn1x0liXxsXyokLnrvE"/>
+</div>
+<div class="absolute bottom-1 right-1 bg-primary text-white p-1.5 rounded-full border-2 border-background-dark">
+<span class="material-symbols-outlined text-sm block">edit</span>
+</div>
+</div>
+<div>
+<h2 class="text-2xl font-bold">Alex Rivera</h2>
+<p class="text-slate-500 dark:text-slate-400 font-medium">Security Level: <span class="text-primary font-bold">Elite Tier</span></p>
+<p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Member since Jan 2024 • ID: IC-88219</p>
+</div>
+<div class="flex gap-2 w-full">
+<button class="flex-1 bg-primary text-white py-2.5 rounded-lg font-bold text-sm tracking-wide hover:opacity-90 transition-opacity">
+                    Sync Vault
+                </button>
+<button class="flex-1 bg-primary/10 dark:bg-primary/20 text-slate-900 dark:text-slate-100 py-2.5 rounded-lg font-bold text-sm tracking-wide border border-primary/20">
+                    Edit Details
+                </button>
+</div>
+</section>
+<!-- Stats Grid -->
+<div class="grid grid-cols-3 gap-3">
+<div class="bg-primary/5 dark:bg-primary/10 border border-primary/10 dark:border-primary/30 p-4 rounded-xl text-center">
+<p class="text-2xl font-bold text-primary dark:text-slate-100">2FA</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest font-semibold mt-1">Security</p>
+</div>
+<div class="bg-primary/5 dark:bg-primary/10 border border-primary/10 dark:border-primary/30 p-4 rounded-xl text-center">
+<p class="text-2xl font-bold text-primary dark:text-slate-100">AES</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest font-semibold mt-1">Encryption</p>
+</div>
+<div class="bg-primary/5 dark:bg-primary/10 border border-primary/10 dark:border-primary/30 p-4 rounded-xl text-center">
+<p class="text-2xl font-bold text-emerald-500">98%</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest font-semibold mt-1">Health</p>
+</div>
+</div>
+<!-- Settings List -->
+<div class="space-y-6">
+<!-- Security Section -->
+<div>
+<h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 px-1">
+<span class="material-symbols-outlined text-lg">shield</span> Security Settings
+                </h3>
+<div class="bg-white dark:bg-primary/5 border border-slate-200 dark:border-primary/20 rounded-xl overflow-hidden divide-y divide-slate-200 dark:divide-primary/20">
+<div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-primary/10 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">fingerprint</span>
+<span class="font-medium">Biometric Unlock</span>
+</div>
+<div class="w-10 h-5 bg-emerald-500 rounded-full relative">
+<div class="absolute right-0.5 top-0.5 size-4 bg-white rounded-full"></div>
+</div>
+</div>
+<div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-primary/10 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">key</span>
+<span class="font-medium">Master Password</span>
+</div>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</div>
+<div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-primary/10 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">gpay</span>
+<span class="font-medium">Authenticator App</span>
+</div>
+<span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded">ACTIVE</span>
+</div>
+</div>
+</div>
+<!-- Privacy Controls -->
+<div>
+<h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 px-1">
+<span class="material-symbols-outlined text-lg">visibility_off</span> Privacy Controls
+                </h3>
+<div class="bg-white dark:bg-primary/5 border border-slate-200 dark:border-primary/20 rounded-xl overflow-hidden divide-y divide-slate-200 dark:divide-primary/20">
+<div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-primary/10 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">public_off</span>
+<span class="font-medium">Stealth Mode</span>
+</div>
+<div class="w-10 h-5 bg-slate-300 dark:bg-slate-700 rounded-full relative">
+<div class="absolute left-0.5 top-0.5 size-4 bg-white rounded-full"></div>
+</div>
+</div>
+<div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-primary/10 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">history</span>
+<span class="font-medium">Activity Logging</span>
+</div>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Device Management -->
+<div>
+<h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 px-1">
+<span class="material-symbols-outlined text-lg">devices</span> Device Management
+                </h3>
+<div class="bg-white dark:bg-primary/5 border border-slate-200 dark:border-primary/20 rounded-xl overflow-hidden divide-y divide-slate-200 dark:divide-primary/20">
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">smartphone</span>
+<div>
+<p class="font-medium">iPhone 15 Pro</p>
+<p class="text-xs text-slate-500">Current Device • New York, US</p>
+</div>
+</div>
+<span class="text-xs font-bold text-emerald-500">ONLINE</span>
+</div>
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">laptop</span>
+<div>
+<p class="font-medium">MacBook Pro M3</p>
+<p class="text-xs text-slate-500">Last active: 2h ago</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-red-400 cursor-pointer">cancel</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-background-dark border-t border-slate-200 dark:border-primary/30 px-6 py-3 pb-8 z-50">
+<div class="max-w-2xl mx-auto flex justify-between items-center">
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Vault</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Activity</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">shield_with_heart</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Health</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary dark:text-slate-100" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">settings</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>
