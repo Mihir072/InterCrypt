@@ -801,6 +801,67 @@ class ApiService {
     return m.copyWith(content: decrypted);
   }
 
+  // ============== ADMIN ENDPOINTS ==============
+
+  /// Get all users (admin only)
+  Future<List<Map<String, dynamic>>> getUsers({int limit = 100}) async {
+    try {
+      final response = await get('/users?limit=$limit');
+      if (response is List) {
+        return response.cast<Map<String, dynamic>>();
+      }
+      // If backend returns a wrapper object
+      final list = (response as Map<String, dynamic>)['users'] ??
+          (response)['content'] ??
+          [];
+      return (list as List).cast<Map<String, dynamic>>();
+    } catch (e) {
+      // Return empty list on error — admin panel handles gracefully
+      return [];
+    }
+  }
+
+  /// Get system audit logs (admin only)
+  Future<List<Map<String, dynamic>>> getSystemAuditLogs({int page = 0, int size = 100}) async {
+    try {
+      final response = await get('/admin/audit?page=$page&size=$size');
+      if (response is List) {
+        return response.cast<Map<String, dynamic>>();
+      }
+      final list = (response as Map<String, dynamic>)['content'] ?? [];
+      return (list as List).cast<Map<String, dynamic>>();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Ban or unban a user (admin only)
+  Future<void> setBannedStatus(String userId, bool banned) async {
+    try {
+      await put('/users/$userId/ban', data: {'banned': banned});
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Change user role (admin only)
+  Future<void> setUserRole(String userId, String role) async {
+    try {
+      await put('/users/$userId/role', data: {'role': role});
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Send broadcast notification to all users (admin only)
+  Future<void> sendBroadcast(String message) async {
+    try {
+      await post('/admin/broadcast', data: {'message': message});
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   void dispose() {
     _client.close();
   }

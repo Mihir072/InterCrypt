@@ -167,10 +167,13 @@ class ExtractMessageDialog extends StatelessWidget {
                 color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
-                secretMessage,
-                style: const TextStyle(fontSize: 16, height: 1.5),
+              child: SingleChildScrollView(
+                child: Text(
+                  secretMessage,
+                  style: const TextStyle(fontSize: 16, height: 1.5),
+                ),
               ),
+
             ),
             const SizedBox(height: 24),
             ElevatedButton(

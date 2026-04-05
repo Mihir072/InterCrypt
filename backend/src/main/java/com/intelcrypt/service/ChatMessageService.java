@@ -13,12 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.intelcrypt.dto.MessageDTO;
 import com.intelcrypt.entity.Chat;
 import com.intelcrypt.entity.Message;
+import com.intelcrypt.entity.Attachment;
 import com.intelcrypt.entity.User;
 import com.intelcrypt.exception.ResourceNotFoundException;
 import com.intelcrypt.exception.UnauthorizedException;
 import com.intelcrypt.repository.ChatRepository;
 import com.intelcrypt.repository.MessageRepository;
 import com.intelcrypt.repository.UserRepository;
+import com.intelcrypt.repository.AttachmentRepository;
 
 /**
  * Service for chat-based messaging operations.
@@ -31,6 +33,7 @@ public class ChatMessageService {
         private final ChatRepository chatRepository;
         private final MessageRepository messageRepository;
         private final UserRepository userRepository;
+        private final AttachmentRepository attachmentRepository;
         private final ChatService chatService;
         private final SimpMessagingTemplate messagingTemplate;
 
@@ -38,11 +41,13 @@ public class ChatMessageService {
                         ChatRepository chatRepository,
                         MessageRepository messageRepository,
                         UserRepository userRepository,
+                        AttachmentRepository attachmentRepository,
                         ChatService chatService,
                         SimpMessagingTemplate messagingTemplate) {
                 this.chatRepository = chatRepository;
                 this.messageRepository = messageRepository;
                 this.userRepository = userRepository;
+                this.attachmentRepository = attachmentRepository;
                 this.chatService = chatService;
                 this.messagingTemplate = messagingTemplate;
         }
@@ -106,6 +111,21 @@ public class ChatMessageService {
                 }
 
                 Message savedMessage = messageRepository.save(message);
+
+                // Save attachments if any
+                if (request.getAttachments() != null && !request.getAttachments().isEmpty()) {
+                        for (MessageDTO.AttachmentData attData : request.getAttachments()) {
+                                Attachment attachment = new Attachment();
+                                attachment.setMessage(savedMessage);
+                                attachment.setEncryptedFilename(attData.getFilename());
+                                attachment.setMimeType(attData.getMimeType());
+                                attachment.setOriginalSize(attData.getSize());
+                                attachment.setEncryptedFilePath(attData.getUrl()); // Store the URL as path for now
+                                attachment.setHasHiddenData(attData.isHasHiddenData());
+                                attachmentRepository.save(attachment);
+                                savedMessage.getAttachments().add(attachment);
+                        }
+                }
 
                 // Update chat's last message
                 String preview = request.getContent() != null
@@ -224,7 +244,16 @@ public class ChatMessageService {
                                 .deliveredAt(null) // Would track separately
                                 .readAt(message.getReadAt() != null ? message.getReadAt().toString() : null)
                                 .expiresAt(message.getExpiresAt() != null ? message.getExpiresAt().toString() : null)
-                                .attachments(new ArrayList<>())
+                                .attachments(message.getAttachments().stream().map(att -> {
+                                        MessageDTO.AttachmentData data = new MessageDTO.AttachmentData();
+                                        data.setId(att.getId().toString());
+                                        data.setFilename(att.getEncryptedFilename());
+                                        data.setMimeType(att.getMimeType());
+                                        data.setSize(att.getOriginalSize());
+                                        data.setUrl(att.getEncryptedFilePath());
+                                        data.setHasHiddenData(att.isHasHiddenData());
+                                        return data;
+                                }).collect(Collectors.toList()))
                                 .isEdited(false)
                                 .isSelfDestructing(message.getExpiresAt() != null)
                                 .build();

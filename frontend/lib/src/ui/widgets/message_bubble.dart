@@ -11,6 +11,8 @@ import 'steganography_widgets.dart';
 import '../../services/location_verification_service.dart';
 import 'location_widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../config/app_config.dart';
+import 'voice_note_widget.dart';
 
 /// Message Bubble — Stitch Secure Chat design
 class MessageBubble extends ConsumerWidget {
@@ -84,8 +86,10 @@ class MessageBubble extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: message.attachments.map((att) {
                           final isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(att.fileType.toLowerCase());
+                          final isAudio = ['m4a', 'mp3', 'wav', 'aac', 'ogg'].contains(att.fileType.toLowerCase());
                           
                           if (isImage && att.fileUrl.isNotEmpty) {
+                            final dynamicUrl = _getDynamicUrl(att.fileUrl);
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: Stack(
@@ -97,9 +101,9 @@ class MessageBubble extends ConsumerWidget {
                                       onLongPress: att.hasHiddenData ? () => _showStegoMenu(context, att) : null,
                                       child: Container(
                                         constraints: const BoxConstraints(maxHeight: 200),
-                                        child: kIsWeb || att.fileUrl.startsWith('http') || att.fileUrl.startsWith('blob:')
-                                            ? Image.network(att.fileUrl, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image))
-                                            : Image.file(File(att.fileUrl), fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image)),
+                                        child: kIsWeb || dynamicUrl.startsWith('http') || dynamicUrl.startsWith('blob:')
+                                            ? Image.network(dynamicUrl, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image))
+                                            : Image.file(File(dynamicUrl), fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image)),
                                       ),
                                     ),
                                   ),
@@ -133,6 +137,19 @@ class MessageBubble extends ConsumerWidget {
                                       ),
                                     ),
                                 ],
+                              ),
+                            );
+                          }
+
+                          if (isAudio && att.fileUrl.isNotEmpty) {
+                            final dynamicUrl = _getDynamicUrl(att.fileUrl);
+
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: VoiceNotePlayerWidget(
+                                audioPath: dynamicUrl,
+                                duration: Duration.zero,
+                                isSent: isSent,
                               ),
                             );
                           }
@@ -245,6 +262,17 @@ class MessageBubble extends ConsumerWidget {
     );
   }
 
+  String _getDynamicUrl(String url) {
+    if (!url.startsWith('http')) return url;
+    try {
+      final apiUri = Uri.parse(AppConfig.apiBaseUrl);
+      final fileUri = Uri.parse(url);
+      return fileUri.replace(host: apiUri.host, port: apiUri.port).toString();
+    } catch (_) {
+      return url;
+    }
+  }
+
   Widget _buildDeliveryStatus(MessageStatus status) {
     switch (status) {
       case MessageStatus.sending:
@@ -290,7 +318,7 @@ class MessageBubble extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (sheetContext) => Container(
         padding: const EdgeInsets.all(24),
         decoration: const BoxDecoration(
           color: AppTheme.surfaceDark,
@@ -311,13 +339,21 @@ class MessageBubble extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             ListTile(
+              leading: const Icon(Icons.image, color: AppTheme.electricCyan),
+              title: const Text('View Image', style: TextStyle(color: AppTheme.textPrimary)),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _launchAttachment(att);
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.vpn_key, color: AppTheme.electricCyan),
               title: const Text(
                 'Extract Hidden Message',
                 style: TextStyle(color: AppTheme.textPrimary),
               ),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(sheetContext);
                 _extractHiddenData(context, att);
               },
             ),
@@ -348,7 +384,11 @@ class MessageBubble extends ConsumerWidget {
       if (context.mounted) Navigator.pop(context); // Close loader
 
       if (result.isAllowed) {
-        _launchAttachment(att);
+        if (att.hasHiddenData) {
+          _showStegoMenu(context, att);
+        } else {
+          _launchAttachment(att);
+        }
       } else {
         if (context.mounted) {
           showDialog(
@@ -366,57 +406,108 @@ class MessageBubble extends ConsumerWidget {
         }
       }
     } else {
-      _launchAttachment(att);
+      if (att.hasHiddenData) {
+        _showStegoMenu(context, att);
+      } else {
+        _launchAttachment(att);
+      }
     }
   }
 
   Future<void> _launchAttachment(MessageAttachment att) async {
     if (att.fileUrl.isNotEmpty) {
-      final uri = Uri.parse(att.fileUrl);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
+      final dynamicUrl = _getDynamicUrl(att.fileUrl);
+      final uri = Uri.parse(dynamicUrl);
+      try {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (e) {
+        debugPrint('Could not launch $dynamicUrl');
       }
     }
   }
 
   Future<void> _extractHiddenData(BuildContext context, MessageAttachment att) async {
+    // Show loading indicator
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator(color: AppTheme.electricCyan)),
+      useRootNavigator: true,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(color: AppTheme.electricCyan),
+      ),
     );
 
     try {
-      Uint8List bytes;
-      if (att.fileUrl.startsWith('http')) {
-        final response = await http.get(Uri.parse(att.fileUrl));
-        bytes = response.bodyBytes;
-      } else {
-        bytes = await File(att.fileUrl).readAsBytes();
+      if (att.fileUrl.isEmpty) {
+        throw Exception('Attachment URL is empty');
       }
 
-      final secret = await SteganographyService.decode(bytes);
+      Uint8List bytes;
+      final dynamicUrl = _getDynamicUrl(att.fileUrl);
+      if (dynamicUrl.startsWith('http')) {
+        final response = await http
+            .get(Uri.parse(dynamicUrl))
+            .timeout(const Duration(seconds: 20));
+        if (response.statusCode != 200) {
+          throw Exception('Failed to download image: HTTP ${response.statusCode}');
+        }
+        bytes = response.bodyBytes;
+      } else {
+        final file = File(att.fileUrl);
+        if (!await file.exists()) {
+          throw Exception('Image file not found on device');
+        }
+        bytes = await file.readAsBytes();
+      }
+
+      // Add a timeout to the steganography decode in case it hangs
+      // This ensures the indicator won't stay forever
+      final secret = await SteganographyService.decode(bytes).timeout(
+        const Duration(seconds: 30),
+      );
       
       if (context.mounted) {
-        Navigator.pop(context); // Close loading
-        if (secret != null) {
-          showDialog(
-            context: context,
-            builder: (context) => ExtractMessageDialog(secretMessage: secret),
-          );
+        // Dismiss loading indicator specifically targeting the root navigator
+        Navigator.of(context, rootNavigator: true).pop();
+        
+        // Brief delay to allow the pop animation to start
+        await Future.delayed(const Duration(milliseconds: 300));
+        
+        if (secret != null && secret.trim().isNotEmpty) {
+          if (context.mounted) {
+            showDialog(
+              context: context,
+              useRootNavigator: true,
+              builder: (context) => ExtractMessageDialog(secretMessage: secret),
+            );
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to extract hidden data')),
+            const SnackBar(
+              content: Text('No hidden message found in this image'),
+              behavior: SnackBarBehavior.floating,
+            ),
           );
         }
       }
     } catch (e) {
+      print('Extraction error: $e');
       if (context.mounted) {
-        Navigator.pop(context);
+        // Ensure loading indicator is dismissed even on error
+        try {
+          Navigator.of(context, rootNavigator: true).pop();
+        } catch (_) {}
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(
+            content: Text('Extraction failed: ${e.toString()}'),
+            backgroundColor: AppTheme.errorRed,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     }
   }
+
+
 }

@@ -78,10 +78,11 @@ class _LockScreenState extends ConsumerState<LockScreen>
       return;
     }
     await Future.delayed(const Duration(milliseconds: 500));
-    if (mounted) {
-      setState(() => _isLoading = false);
-      context.pop();
-    }
+      if (mounted) {
+        setState(() => _isLoading = false);
+        context.pop();
+        context.pop();
+      }
   }
 
   Future<void> _handleBiometricUnlock() async {
@@ -89,7 +90,10 @@ class _LockScreenState extends ConsumerState<LockScreen>
       final authenticated = await _biometricService.authenticate(
         reason: 'Unlock IntelCrypt',
       );
-      if (authenticated && mounted) context.pop();
+      if (authenticated && mounted) {
+        context.pop();
+        context.pop();
+      }
     } on BiometricException catch (e) {
       if (mounted) setState(() => _errorMessage = e.message);
     } catch (e) {

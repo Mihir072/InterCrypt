@@ -123,6 +123,9 @@ public class Message {
     @Column(columnDefinition = "TEXT")
     private String encryptedMetadata;
     
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<Attachment> attachments = new java.util.ArrayList<>();
+    
     public enum MessageClassification {
         STANDARD,
         CONFIDENTIAL,
@@ -297,6 +300,14 @@ public class Message {
 
     public void setEncryptedMetadata(String encryptedMetadata) {
         this.encryptedMetadata = encryptedMetadata;
+    }
+
+    public java.util.List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(java.util.List<Attachment> attachments) {
+        this.attachments = attachments;
     }
     
     /**

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'secure_storage_service.dart';
 
+
 /// Session Manager Service
 /// Handles automatic session timeout and app locking for security
 class SessionManagerService {
@@ -94,7 +95,6 @@ class SessionManagerService {
   void lockSession() {
     _logger.i('Session locked manually');
     _isLocked = true;
-    _sessionTimer?.cancel();
     _onSessionExpired?.call();
   }
 
@@ -189,7 +189,6 @@ class SessionManagerService {
 
   /// Pause session timer (e.g., when app goes to background)
   void pauseTimer() {
-    _sessionTimer?.cancel();
     _logger.d('Session timer paused');
   }
 
@@ -209,6 +208,7 @@ class SessionManagerService {
       final remainingTime = _sessionTimeout - timeSinceActivity;
       _sessionTimer?.cancel();
       _sessionTimer = Timer(remainingTime, _handleSessionTimeout);
+      
       _logger.d(
         'Session timer resumed: ${remainingTime.inMinutes} minutes remaining',
       );

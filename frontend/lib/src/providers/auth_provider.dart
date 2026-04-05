@@ -343,3 +343,9 @@ ApiService apiService(ApiServiceRef ref) {
 SecureStorageService secureStorage(SecureStorageRef ref) {
   return SecureStorageService();
 }
+
+/// Session Manager provider — kept alive for app lifetime (non-auto-dispose).
+final sessionManagerProvider = Provider<SessionManagerService>((ref) {
+  final secureStorage = ref.watch(secureStorageProvider);
+  return SessionManagerService(secureStorage);
+});

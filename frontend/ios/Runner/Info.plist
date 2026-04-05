@@ -49,5 +49,7 @@
 	<string>IntelCrypt needs access to location to verify your access to geofenced secret files.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>IntelCrypt needs access to location to verify your access to geofenced secret files.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>IntelCrypt uses the microphone briefly to verify your location environment. Audio is never stored or transmitted.</string>
 </dict>
 </plist>

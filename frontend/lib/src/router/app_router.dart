@@ -7,6 +7,9 @@ import '../ui/screens/chat_list_screen.dart';
 import '../ui/screens/chat_message_screen.dart';
 import '../ui/screens/profile_screen.dart';
 import '../ui/screens/security_screen.dart';
+import '../ui/screens/admin_dashboard_screen.dart';
+import '../ui/screens/activity_log_screen.dart';
+import '../models/models.dart';
 
 /// Application Router Configuration
 /// Provides typed route navigation with deep linking support
@@ -83,7 +86,24 @@ final appRouter = GoRouter(
       name: 'security',
       builder: (context, state) => const SecurityScreen(),
     ),
-  ],
+
+    // Admin Routes (admin-only access)
+    GoRoute(
+      path: '/admin',
+      name: 'admin',
+      builder: (context, state) => const AdminDashboardScreen(),
+    ),
+
+    // Activity Log Route
+    GoRoute(
+      path: '/activity_log',
+      name: 'activity_log',
+      builder: (context, state) {
+        final message = state.extra as Message;
+        return ActivityLogScreen(message: message);
+      },
+    ),
+    ],
 
   // Error handling
   errorBuilder: (context, state) => ErrorScreen(error: state.error),

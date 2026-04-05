@@ -313,6 +313,14 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
+                      if (user.roles.contains('ADMIN') || user.roles.contains('ROLE_ADMIN'))
+                        _SettingsItem(
+                          icon: Icons.admin_panel_settings_outlined,
+                          title: 'Admin Dashboard',
+                          subtitle: 'Manage identities and system logs',
+                          trailing: Icon(Icons.shield, color: AppTheme.warningOrange),
+                          onTap: () => context.pushNamed('admin'),
+                        ),
                     ],
                   ),
                   const SizedBox(height: 24),

@@ -17,8 +17,11 @@ import '../widgets/location_widgets.dart';
 
 import '../../providers/providers.dart';
 import '../../services/websocket_service.dart';
+import '../../services/activity_log_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/steganography_widgets.dart';
+import '../widgets/voice_note_widget.dart';
+import '../../services/voice_note_service.dart';
 
 /// ChatMessageScreen — Stitch Refined Secure Chat design
 class ChatMessageScreen extends ConsumerStatefulWidget {
@@ -178,6 +181,22 @@ class _ChatMessageScreenState extends ConsumerState<ChatMessageScreen> {
             content: text.isEmpty ? '[Attachment]' : text,
             attachments: uploadedAttachments,
           );
+          
+      // Log SENT event
+      ref.read(activityLogServiceProvider).logEvent(
+        chatId: widget.chatId,
+        messageId: sentMessage.id,
+        eventType: ActivityEventType.sent,
+        userId: _currentUserId ?? 'MobileUser',
+        metadata: {'platform': Platform.operatingSystem},
+      ).then((event) {
+        if (mounted) {
+          setState(() {
+            sentMessage.activityLogs.add(event);
+          });
+        }
+      });
+      
       setState(() => _messages.add(sentMessage));
       Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
     } catch (e) {
@@ -187,6 +206,81 @@ class _ChatMessageScreenState extends ConsumerState<ChatMessageScreen> {
             content: Text('Failed to send message: $e'),
             backgroundColor: AppTheme.errorRed,
           ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoadingMessage = false);
+    }
+  }
+
+  void _showVoiceRecorder() {
+    FocusScope.of(context).unfocus();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (sheetContext) => VoiceNoteRecorderSheet(
+        onSend: (result) async {
+          Navigator.pop(sheetContext);
+          await _sendVoiceNote(result);
+        },
+        onCancel: () {
+          Navigator.pop(sheetContext);
+        },
+      ),
+    );
+  }
+
+  Future<void> _sendVoiceNote(VoiceNoteResult result) async {
+    setState(() => _isLoadingMessage = true);
+    try {
+      final response = await ref.read(apiServiceProvider).uploadFile(
+        result.filePath,
+        'voice_note_${DateTime.now().millisecondsSinceEpoch}.m4a',
+      );
+      
+      String uploadedUrl = result.filePath;
+      if (response['fileDownloadUri'] != null) {
+        uploadedUrl = response['fileDownloadUri'];
+      }
+
+      final attachment = MessageAttachment(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        fileName: 'Voice Note',
+        fileType: 'audio/m4a',
+        fileSize: 0,
+        fileUrl: uploadedUrl,
+        encryptionKeyId: 'default',
+        hasHiddenData: false,
+        locationRestrictionEnabled: false,
+      );
+
+      final sentMessage = await ref.read(apiServiceProvider).sendMessage(
+        widget.chatId,
+        content: '[Voice Note]',
+        attachments: [attachment],
+      );
+
+      ref.read(activityLogServiceProvider).logEvent(
+        chatId: widget.chatId,
+        messageId: sentMessage.id,
+        eventType: ActivityEventType.sent,
+        userId: _currentUserId ?? 'MobileUser',
+        metadata: {'platform': Platform.operatingSystem},
+      ).then((event) {
+        if (mounted) {
+          setState(() {
+            sentMessage.activityLogs.add(event);
+          });
+        }
+      });
+
+      setState(() => _messages.add(sentMessage));
+      Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to send voice note: $e'), backgroundColor: AppTheme.errorRed),
         );
       }
     } finally {
@@ -264,6 +358,18 @@ class _ChatMessageScreenState extends ConsumerState<ChatMessageScreen> {
             ],
           ),
           onTap: () => _deleteMessage(message),
+        ),
+        PopupMenuItem(
+          child: const Row(
+            children: [
+              Icon(Icons.history, size: 18, color: AppTheme.electricCyan),
+              SizedBox(width: 8),
+              Text('View Activity Log', style: TextStyle(color: AppTheme.electricCyan)),
+            ],
+          ),
+          onTap: () {
+            context.pushNamed('activity_log', extra: message);
+          },
         ),
       ],
     );
@@ -767,7 +873,21 @@ class _ChatMessageScreenState extends ConsumerState<ChatMessageScreen> {
         return MessageBubble(
           message: message,
           isSent: isSent,
-          onTap: () {},
+          onTap: () {
+            // Log OPENED event
+            ref.read(activityLogServiceProvider).logEvent(
+              chatId: widget.chatId,
+              messageId: message.id,
+              eventType: ActivityEventType.opened,
+              userId: _currentUserId ?? 'MobileUser',
+            ).then((event) {
+              if (mounted) {
+                setState(() {
+                  message.activityLogs.add(event);
+                });
+              }
+            });
+          },
           onLongPress: () {
             _showMessageContextMenu(message, Offset.zero);
           },
@@ -860,34 +980,36 @@ class _ChatMessageScreenState extends ConsumerState<ChatMessageScreen> {
           ),
           const SizedBox(width: 8),
 
-          // Send button
-          GestureDetector(
-            onTap: _isLoadingMessage ? null : _sendMessage,
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: (_messageController.text.trim().isNotEmpty || _selectedFiles.isNotEmpty)
-                    ? AppTheme.electricCyan
-                    : AppTheme.primaryBlue.withOpacity(0.3),
-              ),
-              child: _isLoadingMessage
-                  ? const Padding(
-                      padding: EdgeInsets.all(12),
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Icon(
-                      Icons.send,
-                      size: 20,
-                      color: (_messageController.text.trim().isNotEmpty || _selectedFiles.isNotEmpty)
-                          ? AppTheme.backgroundDeep
-                          : AppTheme.textMuted,
-                    ),
-            ),
+          // Mic / Send button
+          Builder(
+            builder: (context) {
+              final canSendText = _messageController.text.trim().isNotEmpty || _selectedFiles.isNotEmpty;
+              
+              return GestureDetector(
+                onTap: _isLoadingMessage ? null : (canSendText ? _sendMessage : _showVoiceRecorder),
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: canSendText ? AppTheme.electricCyan : AppTheme.primaryBlue.withOpacity(0.3),
+                  ),
+                  child: _isLoadingMessage
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Icon(
+                          canSendText ? Icons.send : Icons.mic,
+                          size: 20,
+                          color: canSendText ? AppTheme.backgroundDeep : AppTheme.textMuted,
+                        ),
+                ),
+              );
+            }
           ),
         ],
       ), // Row ends

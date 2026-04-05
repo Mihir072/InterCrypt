@@ -198,6 +198,7 @@ public class MessageDTO {
         private String mimeType;
         private long size;
         private String url;
+        private boolean hasHiddenData;
         
         public AttachmentData() {}
         
@@ -211,6 +212,8 @@ public class MessageDTO {
         public void setSize(long size) { this.size = size; }
         public String getUrl() { return url; }
         public void setUrl(String url) { this.url = url; }
+        public boolean isHasHiddenData() { return hasHiddenData; }
+        public void setHasHiddenData(boolean hasHiddenData) { this.hasHiddenData = hasHiddenData; }
     }
     
     /**

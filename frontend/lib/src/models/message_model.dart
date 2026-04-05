@@ -1,4 +1,6 @@
 /// Message model for encrypted chat
+import 'activity_event.dart';
+
 class Message {
   final String id;
   final String chatId;
@@ -15,6 +17,7 @@ class Message {
   final List<MessageAttachment> attachments;
   final bool isEdited;
   final bool isSelfDestructing;
+  final List<ActivityEvent> activityLogs;
 
   const Message({
     required this.id,
@@ -32,6 +35,7 @@ class Message {
     required this.attachments,
     this.isEdited = false,
     this.isSelfDestructing = false,
+    this.activityLogs = const [],
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
@@ -69,6 +73,12 @@ class Message {
           [],
       isEdited: json['isEdited'] as bool? ?? false,
       isSelfDestructing: json['isSelfDestructing'] as bool? ?? false,
+      activityLogs: (json['activityLogs'] as List?)
+              ?.map(
+                (a) => ActivityEvent.fromJson(a as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
     );
   }
 
@@ -89,6 +99,7 @@ class Message {
       'attachments': attachments.map((a) => a.toJson()).toList(),
       'isEdited': isEdited,
       'isSelfDestructing': isSelfDestructing,
+      'activityLogs': activityLogs.map((a) => a.toJson()).toList(),
     };
   }
 
@@ -108,6 +119,7 @@ class Message {
     List<MessageAttachment>? attachments,
     bool? isEdited,
     bool? isSelfDestructing,
+    List<ActivityEvent>? activityLogs,
   }) {
     return Message(
       id: id ?? this.id,
@@ -125,6 +137,7 @@ class Message {
       attachments: attachments ?? this.attachments,
       isEdited: isEdited ?? this.isEdited,
       isSelfDestructing: isSelfDestructing ?? this.isSelfDestructing,
+      activityLogs: activityLogs ?? this.activityLogs,
     );
   }
 }
@@ -214,13 +227,13 @@ class MessageAttachment {
 
   factory MessageAttachment.fromJson(Map<String, dynamic> json) {
     return MessageAttachment(
-      id: json['id'] as String,
-      fileName: json['fileName'] as String,
-      fileType: json['fileType'] as String,
-      fileSize: json['fileSize'] as int,
-      fileUrl: json['fileUrl'] as String,
-      thumbnailUrl: json['thumbnailUrl'] as String?,
-      encryptionKeyId: json['encryptionKeyId'] as String,
+      id: json['id']?.toString() ?? '',
+      fileName: json['fileName']?.toString() ?? 'unknown',
+      fileType: json['fileType']?.toString() ?? 'unknown',
+      fileSize: (json['fileSize'] as num?)?.toInt() ?? 0,
+      fileUrl: json['fileUrl']?.toString() ?? '',
+      thumbnailUrl: json['thumbnailUrl']?.toString(),
+      encryptionKeyId: json['encryptionKeyId']?.toString() ?? 'default',
       hasHiddenData: json['hasHiddenData'] as bool? ?? false,
       locationRestrictionEnabled: json['locationRestrictionEnabled'] as bool? ?? false,
       restrictedLatitude: (json['restrictedLatitude'] as num?)?.toDouble(),

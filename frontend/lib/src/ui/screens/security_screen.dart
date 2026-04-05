@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 
 /// SecurityScreen — Stitch Key Verification + Login History design
@@ -607,12 +608,12 @@ class _LoginHistoryTab extends StatelessWidget {
 // TAB 3: Security Settings
 // ══════════════════════════════════════════════════════════════════════════════
 
-class _SecuritySettingsTab extends StatelessWidget {
+class _SecuritySettingsTab extends ConsumerWidget {
   final bool isDark;
   const _SecuritySettingsTab({required this.isDark});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -674,6 +675,7 @@ class _SecuritySettingsTab extends StatelessWidget {
                   ),
                 ),
               ),
+              Divider(height: 1, color: AppTheme.primaryBlue.withOpacity(0.2)),
             ],
           ),
           const SizedBox(height: 24),

@@ -84,6 +84,12 @@ public class Attachment {
     
     @Column
     private boolean deleted = false;
+    
+    /**
+     * Flag indicating if the attachment contains steganographic data
+     */
+    @Column
+    private boolean hasHiddenData = false;
 
     public Attachment() {}
 
@@ -199,6 +205,14 @@ public class Attachment {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public boolean isHasHiddenData() {
+        return hasHiddenData;
+    }
+
+    public void setHasHiddenData(boolean hasHiddenData) {
+        this.hasHiddenData = hasHiddenData;
     }
 
     @Override
