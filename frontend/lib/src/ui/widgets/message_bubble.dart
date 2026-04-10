@@ -66,17 +66,25 @@ class MessageBubble extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Message content
-                  Text(
-                    message.content,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: isSent
-                          ? Colors.white
-                          : (isDark ? AppTheme.textPrimary : Colors.black87),
-                      height: 1.4,
+                  // Message content (hide placeholders)
+                  if (message.content.isNotEmpty && 
+                      message.content != '[Attachment]' && 
+                      message.content != '[Voice Note]')
+                    Padding(
+                      padding: EdgeInsets.only(
+                        bottom: message.attachments.isNotEmpty ? 8.0 : 0.0,
+                      ),
+                      child: Text(
+                        message.content,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: isSent
+                              ? Colors.white
+                              : (isDark ? AppTheme.textPrimary : Colors.black87),
+                          height: 1.4,
+                        ),
+                      ),
                     ),
-                  ),
 
                   // Attachments
                   if (message.attachments.isNotEmpty)

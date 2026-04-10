@@ -182,7 +182,11 @@ class _ChatMessageScreenState extends ConsumerState<ChatMessageScreen> {
             attachments: uploadedAttachments,
           );
           
-      // Log SENT event
+      // Add message to list first
+      setState(() => _messages.add(sentMessage));
+      Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+
+      // Log SENT event — use copyWith to avoid mutating const activityLogs list
       ref.read(activityLogServiceProvider).logEvent(
         chatId: widget.chatId,
         messageId: sentMessage.id,
@@ -192,13 +196,15 @@ class _ChatMessageScreenState extends ConsumerState<ChatMessageScreen> {
       ).then((event) {
         if (mounted) {
           setState(() {
-            sentMessage.activityLogs.add(event);
+            final idx = _messages.indexWhere((m) => m.id == sentMessage.id);
+            if (idx != -1) {
+              _messages[idx] = _messages[idx].copyWith(
+                activityLogs: [..._messages[idx].activityLogs, event],
+              );
+            }
           });
         }
       });
-      
-      setState(() => _messages.add(sentMessage));
-      Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -261,6 +267,9 @@ class _ChatMessageScreenState extends ConsumerState<ChatMessageScreen> {
         attachments: [attachment],
       );
 
+      setState(() => _messages.add(sentMessage));
+
+      // Log SENT event — use copyWith to avoid mutating const activityLogs list
       ref.read(activityLogServiceProvider).logEvent(
         chatId: widget.chatId,
         messageId: sentMessage.id,
@@ -270,12 +279,15 @@ class _ChatMessageScreenState extends ConsumerState<ChatMessageScreen> {
       ).then((event) {
         if (mounted) {
           setState(() {
-            sentMessage.activityLogs.add(event);
+            final idx = _messages.indexWhere((m) => m.id == sentMessage.id);
+            if (idx != -1) {
+              _messages[idx] = _messages[idx].copyWith(
+                activityLogs: [..._messages[idx].activityLogs, event],
+              );
+            }
           });
         }
       });
-
-      setState(() => _messages.add(sentMessage));
       Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
     } catch (e) {
       if (mounted) {

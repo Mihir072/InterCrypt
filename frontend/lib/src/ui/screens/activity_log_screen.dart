@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../models/models.dart';
+import '../../providers/providers.dart';
 import '../theme/app_theme.dart';
 
 /// Screen to display the activity log (audit trail) of a specific message
-class ActivityLogScreen extends StatelessWidget {
+class ActivityLogScreen extends ConsumerStatefulWidget {
   final Message message;
 
   const ActivityLogScreen({
@@ -13,12 +15,52 @@ class ActivityLogScreen extends StatelessWidget {
   });
 
   @override
+  ConsumerState<ActivityLogScreen> createState() => _ActivityLogScreenState();
+}
+
+class _ActivityLogScreenState extends ConsumerState<ActivityLogScreen> {
+  late Message _message;
+
+  @override
+  void initState() {
+    super.initState();
+    _message = widget.message;
+  }
+
+  Future<void> _refresh() async {
+    try {
+      final apiService = ref.read(apiServiceProvider);
+      // Ensure backend supports this endpoint or gracefully handle it
+      final updatedMessage = await apiService.getMessage(
+        _message.chatId,
+        _message.id,
+      );
+      
+      if (mounted) {
+        setState(() {
+          _message = updatedMessage;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to refresh activity: $e'),
+            backgroundColor: AppTheme.errorRed,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     // Sort logs descending (newest first)
-    final logs = List<ActivityEvent>.from(message.activityLogs)
+    final logs = List<ActivityEvent>.from(_message.activityLogs)
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
 
     return Scaffold(
       appBar: AppBar(
@@ -26,16 +68,26 @@ class ActivityLogScreen extends StatelessWidget {
         elevation: 0,
         backgroundColor: isDark ? AppTheme.backgroundDark : Colors.white,
       ),
-      body: logs.isEmpty
-          ? _buildEmptyState(isDark)
-          : ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              itemCount: logs.length,
-              itemBuilder: (context, index) {
-                final log = logs[index];
-                return _buildTimelineItem(log, isDark, isLast: index == logs.length - 1);
-              },
-            ),
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        color: AppTheme.electricCyan,
+        child: logs.isEmpty
+            ? Stack(
+                children: [
+                  _buildEmptyState(isDark),
+                  ListView(), // Required for RefreshIndicator to work when empty
+                ],
+              )
+            : ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                itemCount: logs.length,
+                itemBuilder: (context, index) {
+                  final log = logs[index];
+                  return _buildTimelineItem(log, isDark, isLast: index == logs.length - 1);
+                },
+              ),
+      ),
     );
   }
 

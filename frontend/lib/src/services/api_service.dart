@@ -651,6 +651,31 @@ class ApiService {
     }
   }
 
+  /// Get single message by ID
+  Future<Message> getMessage(String chatId, String messageId) async {
+    try {
+      final response = await get('/messages/$messageId');
+      final message = Message.fromJson(response as Map<String, dynamic>);
+
+      // Decrypt if needed
+      if (message.content == '[Encrypted]' && message.contentEncrypted.isNotEmpty) {
+        try {
+          final decrypted = await EncryptionService.decryptMessage(
+            message.contentEncrypted,
+            keyId: message.encryption.keyId,
+            encryptionKey: 'default_key',
+          );
+          return parseDecryptedContent(message, decrypted);
+        } catch (e) {
+          return message;
+        }
+      }
+      return message;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Mark message as read
   Future<void> markMessageAsRead(String chatId, String messageId) async {
     try {

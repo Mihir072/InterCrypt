@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IntelCrypt – System Architecture</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f5f5;
+      padding: 30px 20px 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1.page-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 4px;
+      letter-spacing: -0.3px;
+    }
+    .page-sub {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    /* ── Outer wrapper ── */
+    .outer {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      max-width: 1350px;
+      width: 100%;
+    }
+
+    /* ── Main diagram ── */
+    .main-diagram {
+      flex: 1;
+      background: #fff;
+      border: 2px solid #222;
+      border-radius: 14px;
+      padding: 24px 22px 22px;
+      position: relative;
+    }
+
+    /* ── Dashed sections ── */
+    .section-box {
+      border: 2px dashed #555;
+      border-radius: 10px;
+      padding: 14px 14px 14px 14px;
+      position: relative;
+      background: #fafafa;
+    }
+
+    .section-label {
+      position: absolute;
+      top: -11px;
+      left: 14px;
+      background: #fff;
+      padding: 0 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #222;
+      letter-spacing: 0.2px;
+    }
+
+    /* ── Node ── */
+    .node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      min-width: 72px;
+    }
+
+    .node-icon {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      border-radius: 12px;
+      border: 1.5px solid #ddd;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      transition: transform .15s;
+    }
+    .node-icon:hover { transform: scale(1.08); }
+
+    .node-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #222;
+      text-align: center;
+      max-width: 80px;
+      line-height: 1.3;
+    }
+
+    /* ── Icon styles ── */
+    .icon-blue   { background: #e8f0ff; border-color: #4285f4; }
+    .icon-green  { background: #e8f8ea; border-color: #34a853; }
+    .icon-red    { background: #fff0f0; border-color: #ea4335; }
+    .icon-purple { background: #f3eeff; border-color: #9c27b0; }
+    .icon-orange { background: #fff4e8; border-color: #f0883e; }
+    .icon-teal   { background: #e4f9f5; border-color: #009688; }
+    .icon-yellow { background: #fffbea; border-color: #f9a825; }
+    .icon-dark   { background: #f0f0f0; border-color: #444; }
+
+    /* ── Arrow ── */
+    .arrow {
+      display: flex;
+      align-items: center;
+      color: #333;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .arrow-down {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #333;
+      font-size: 20px;
+    }
+
+    /* ── Rows ── */
+    .flow-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: nowrap;
+    }
+
+    /* ── Top flow row ── */
+    .top-flow {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 18px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+
+    /* ── Middle area ── */
+    .middle-area {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    /* ── Left panel (User Dashboard) ── */
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 160px;
+    }
+
+    /* ── Center area ── */
+    .center-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── User flow row (center top) ── */
+    .user-flow-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* ── DB section ── */
+    .db-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Bottom section (Security Filters) ── */
+    .bottom-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Right panel (Authority/Admin) ── */
+    .right-panel {
+      min-width: 155px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* small label pill */
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+
+    /* logo cards for tech stack panel */
+    .tech-panel {
+      width: 195px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .tech-card {
+      background: #fff;
+      border: 2px solid #222;
+      border-radius: 12px;
+      padding: 14px 12px;
+    }
+    .tech-card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .tech-logos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .tech-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 6px;
+      border-radius: 10px;
+      border: 1.5px solid #eee;
+      background: #fafafa;
+    }
+    .tech-logo-icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+    .tech-logo-text {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #333;
+      text-align: center;
+    }
+
+    /* SVG logos rendered inline */
+    .logo-img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    /* node group box */
+    .group-box {
+      border: 1.5px dashed #aaa;
+      border-radius: 8px;
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      background: #f9f9f9;
+      position: relative;
+    }
+    .group-box-label {
+      position: absolute;
+      top: -9px; left: 10px;
+      background: #fff;
+      padding: 0 5px;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #555;
+    }
+
+    /* curved arrows using CSS */
+    .v-arrow {
+      width: 2px;
+      background: #333;
+      min-height: 20px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+<h1 class="page-title">🔐 IntelCrypt – System Architecture</h1>
+<p class="page-sub">Enterprise Secure Messaging · Spring Boot 3.2 · Flutter 3.10 · AES-256-GCM + RSA-2048</p>
+
+<div class="outer">
+
+  <!-- ═══════════════════════════════════════
+       MAIN DIAGRAM
+  ═══════════════════════════════════════ -->
+  <div class="main-diagram">
+
+    <!-- ── TOP ROW: Onboarding Flow ── -->
+    <div class="top-flow">
+
+      <!-- User -->
+      <div class="node">
+        <div class="node-icon icon-dark">👤</div>
+        <div class="node-label">User</div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- Installation -->
+      <div class="group-box">
+        <div class="node">
+          <div class="node-icon icon-blue">
+            <!-- Play Store icon -->
+            <svg width="28" height="28" viewBox="0 0 48 48"><path d="M6 44V4l38 20L6 44z" fill="#34a853"/><path d="M6 4l20 20L6 44V4z" fill="#ea4335"/><path d="M26 24l18-12-18 12z" fill="#fbbc05"/><path d="M26 24l18 12-18-12z" fill="#fff"/></svg>
+          </div>
+          <div class="node-label">Play Store</div>
+        </div>
+        <div class="node">
+          <div class="node-icon icon-blue">
+            <!-- App Store icon -->
+            <svg width="28" height="28" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#1c7aff"/><path d="M24 8l2.5 7.7h8l-6.5 4.7 2.5 7.7L24 23.4l-6.5 4.7 2.5-7.7L13.5 15.7h8z" fill="#fff"/><rect x="12" y="34" width="24" height="3" rx="1.5" fill="#fff"/></svg>
+          </div>
+          <div class="node-label">App Store</div>
+        </div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- User Registration -->
+      <div class="node">
+        <div class="node-icon icon-green">👤✅</div>
+        <div class="node-label">User Registration</div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- Permission Handling -->
+      <div class="group-box">
+        <div class="node">
+          <div class="node-icon icon-orange">🔒</div>
+          <div class="node-label">Biometric</div>
+        </div>
+        <div class="node">
+          <div class="node-icon icon-orange">📍</div>
+          <div class="node-label">Location</div>
+        </div>
+        <div class="node">
+          <div class="node-icon icon-orange">🎤</div>
+          <div class="node-label">Microphone</div>
+        </div>
+        <div class="group-box-label">Permission Handling</div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- Role Selection -->
+      <div class="node">
+        <div class="node-icon icon-purple">👥</div>
+        <div class="node-label">Role Selection</div>
+      </div>
+
+    </div>
+    <!-- ── END TOP ROW ── -->
+
+    <!-- ── MIDDLE AREA ── -->
+    <div class="middle-area">
+
+      <!-- LEFT: User Dashboard -->
+      <div class="left-panel">
+        <div class="section-box" style="min-height: 360px;">
+          <span class="section-label">User Dashboard</span>
+
+          <div class="node" style="margin-bottom:10px; margin-top:4px;">
+            <div class="node-icon icon-blue">💬</div>
+            <div class="node-label">Chat List</div>
+          </div>
+          <div class="arrow-down"><span style="font-size:18px;">↕</span></div>
+
+          <div class="node" style="margin: 8px 0;">
+            <div class="node-icon icon-green">🔒</div>
+            <div class="node-label">Security Settings</div>
+          </div>
+          <div class="arrow-down"><span style="font-size:18px;">↕</span></div>
+
+          <div class="node" style="margin: 8px 0;">
+            <div class="node-icon icon-teal">🔑</div>
+            <div class="node-label">Key Management</div>
+          </div>
+          <div class="arrow-down"><span style="font-size:18px;">↕</span></div>
+
+          <div class="node" style="margin: 8px 0;">
+            <div class="node-icon icon-dark">⏱️</div>
+            <div class="node-label">Session Lock</div>
+          </div>
+          <div class="arrow-down"><span style="font-size:18px;">↕</span></div>
+
+          <div class="node" style="margin-top: 8px;">
+            <div class="node-icon icon-purple">👤</div>
+            <div class="node-label">Profile Screen</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CENTER: Message flow + DB + Security -->
+      <div class="center-area">
+
+        <!-- User flow: send message -->
+        <div class="section-box">
+          <span class="section-label">Secure Messaging Flow (Regular User)</span>
+          <div class="user-flow-row" style="margin-top: 6px;">
+
+            <div class="node">
+              <div class="node-icon icon-blue">👤</div>
+              <div class="node-label">User</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-teal">🖊️</div>
+              <div class="node-label">Compose Message</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-purple">🔒</div>
+              <div class="node-label">AES-256-GCM Encrypt</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-purple">🔏</div>
+              <div class="node-label">RSA-2048 Key Wrap</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-green">📤</div>
+              <div class="node-label">Send via HTTPS</div>
+            </div>
+
+          </div>
+          <div class="user-flow-row" style="margin-top: 10px; justify-content: flex-end;">
+
+            <div class="node">
+              <div class="node-icon icon-teal">✅</div>
+              <div class="node-label">Delivered + Read Receipt</div>
+            </div>
+            <div class="arrow">←</div>
+            <div class="node">
+              <div class="node-icon icon-purple">🔓</div>
+              <div class="node-label">Recipient Decrypts</div>
+            </div>
+            <div class="arrow">←</div>
+            <div class="node">
+              <div class="node-icon icon-blue">💬</div>
+              <div class="node-label">Chat Screen</div>
+            </div>
+            <div class="arrow">←</div>
+            <div class="node">
+              <div class="node-icon icon-orange">🔔</div>
+              <div class="node-label">Push Notification</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- DB Section -->
+        <div class="section-box">
+          <span class="section-label">Database &amp; API Layer</span>
+          <div class="db-section" style="margin-top: 8px;">
+
+            <div class="node">
+              <div class="node-icon icon-blue" style="width:64px;height:64px;font-size:14px;font-weight:800;color:#1565c0;">
+                API
+              </div>
+              <div class="node-label">REST API<br/><span style="font-size:9px;color:#888;">/api/auth /chats /messages /keys</span></div>
+            </div>
+
+            <div class="arrow">⇄</div>
+
+            <div class="node">
+              <div class="node-icon icon-teal" style="width:64px;height:64px;font-size:13px;font-weight:700;color:#006400;">
+                WS
+              </div>
+              <div class="node-label">WebSocket<br/><span style="font-size:9px;color:#888;">STOMP / Real-time</span></div>
+            </div>
+
+            <div class="arrow">⇄</div>
+
+            <!-- H2/PostgreSQL -->
+            <div class="node">
+              <div class="node-icon icon-yellow" style="width:64px;height:64px;">
+                <svg width="32" height="32" viewBox="0 0 48 48">
+                  <ellipse cx="24" cy="12" rx="18" ry="6" fill="#336791"/>
+                  <path d="M6 12v10c0 3.3 8.1 6 18 6s18-2.7 18-6V12" fill="#336791" opacity=".8"/>
+                  <path d="M6 22v10c0 3.3 8.1 6 18 6s18-2.7 18-6V22" fill="#336791" opacity=".6"/>
+                  <ellipse cx="24" cy="32" rx="18" ry="6" fill="#336791" opacity=".6"/>
+                </svg>
+              </div>
+              <div class="node-label">PostgreSQL<br/><span style="font-size:9px;color:#888;">H2 (dev)</span></div>
+            </div>
+
+            <div class="arrow">⇄</div>
+
+            <!-- Encrypted Storage -->
+            <div class="node">
+              <div class="node-icon icon-purple" style="width:64px;height:64px;">🔐</div>
+              <div class="node-label">Encrypted Storage<br/><span style="font-size:9px;color:#888;">AES at-rest</span></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Security Filter Chain -->
+        <div class="section-box" style="border-color:#e04040; background:#fff8f8;">
+          <span class="section-label" style="color:#c00; background:#fff8f8;">Security Filter Chain</span>
+          <div class="bottom-section" style="margin-top: 8px;">
+
+            <div class="node">
+              <div class="node-icon icon-red">🚦</div>
+              <div class="node-label">Rate Limiter<br/><span style="font-size:9px;color:#888;">per-IP bucket</span></div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-red">🐝</div>
+              <div class="node-label">Honeypot Filter<br/><span style="font-size:9px;color:#888;">attacker traps</span></div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-red">🪙</div>
+              <div class="node-label">JWT Auth Filter<br/><span style="font-size:9px;color:#888;">Bearer token</span></div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-orange">⚙️</div>
+              <div class="node-label">Spring Controllers<br/><span style="font-size:9px;color:#888;">9 REST endpoints</span></div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-green">📋</div>
+              <div class="node-label">Audit Log<br/><span style="font-size:9px;color:#888;">IP · UA · event</span></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Acoustic + Biometric special features -->
+        <div class="section-box" style="border-color:#009688; background:#f0fdfb;">
+          <span class="section-label" style="color:#007a6d; background:#f0fdfb;">Advanced Auth &amp; Features</span>
+          <div class="bottom-section" style="margin-top: 8px;">
+
+            <div class="node">
+              <div class="node-icon icon-teal">🎙️</div>
+              <div class="node-label">Acoustic Fingerprint</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-blue">🧬</div>
+              <div class="node-label">Biometric Auth</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-purple">🖼️</div>
+              <div class="node-label">Steganography</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-orange">📍</div>
+              <div class="node-label">Location Verify</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node">
+              <div class="node-icon icon-red">💥</div>
+              <div class="node-label">Self-Destruct<br/><span style="font-size:9px;color:#888;">auto-expire msg</span></div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <!-- ── END CENTER ── -->
+
+      <!-- RIGHT: Admin / Authority Dashboard -->
+      <div class="right-panel">
+        <div class="section-box" style="min-height: 360px;">
+          <span class="section-label">Admin Dashboard</span>
+
+          <div class="node" style="margin-top: 4px; margin-bottom: 10px;">
+            <div class="node-icon icon-red">👮</div>
+            <div class="node-label">Admin / Authority</div>
+          </div>
+
+          <div class="arrow-down" style="margin-bottom:8px;"><span style="font-size:16px;">↓</span></div>
+
+          <div class="node" style="margin-bottom: 10px;">
+            <div class="node-icon icon-orange">📊</div>
+            <div class="node-label">Real-Time Metrics</div>
+          </div>
+
+          <div class="arrow-down" style="margin-bottom:8px;"><span style="font-size:16px;">↕</span></div>
+
+          <div class="node" style="margin-bottom: 10px;">
+            <div class="node-icon icon-blue">📋</div>
+            <div class="node-label">Audit Log Viewer</div>
+          </div>
+
+          <div class="arrow-down" style="margin-bottom:8px;"><span style="font-size:16px;">↕</span></div>
+
+          <div class="node" style="margin-bottom: 10px;">
+            <div class="node-icon icon-purple">👥</div>
+            <div class="node-label">User Management</div>
+          </div>
+
+          <div class="arrow-down" style="margin-bottom:8px;"><span style="font-size:16px;">↕</span></div>
+
+          <div class="node" style="margin-bottom: 10px;">
+            <div class="node-icon icon-red">🔑</div>
+            <div class="node-label">Key Rotation Monitor</div>
+          </div>
+
+          <div class="arrow-down" style="margin-bottom:8px;"><span style="font-size:16px;">↕</span></div>
+
+          <div class="node">
+            <div class="node-icon icon-green">✅</div>
+            <div class="node-label">Role Promotion</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    <!-- ── END MIDDLE ── -->
+
+  </div>
+  <!-- ── END MAIN DIAGRAM ── -->
+
+  <!-- ═══════════════════════════════════════
+       TECH STACK PANEL (right side)
+  ═══════════════════════════════════════ -->
+  <div class="tech-panel">
+
+    <!-- Frontend -->
+    <div class="tech-card">
+      <div class="tech-card-title">Frontend</div>
+      <div class="tech-logos">
+
+        <!-- Flutter -->
+        <div class="tech-logo">
+          <svg class="logo-img" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 29L26.5 15.5 40 29l-6.75 6.75L26.5 29l-6.75 6.75z" fill="#40C4FF"/>
+            <path d="M13 29l13.5-13.5L26.5 29l-6.75 6.75z" fill="#0288D1"/>
+            <path d="M26.5 29l6.75 6.75L26.5 42.5l-6.75-6.75z" fill="#40C4FF"/>
+            <path d="M19.75 35.75L26.5 42.5l-6.75-6.75z" fill="#81D4FA"/>
+          </svg>
+          <span class="tech-logo-text">Flutter 3.10</span>
+        </div>
+
+        <!-- Dart -->
+        <div class="tech-logo">
+          <svg class="logo-img" viewBox="0 0 48 48">
+            <path d="M6 10l8-8h18l12 12v18l-8 8H18L6 28z" fill="#00B4AB"/>
+            <path d="M18 14h10l6 6v10l-6 6H18l-6-6V20z" fill="#fff"/>
+            <path d="M20 20h8l3 3v6l-3 3h-8l-3-3v-6z" fill="#00B4AB"/>
+          </svg>
+          <span class="tech-logo-text">Dart 3.10</span>
+        </div>
+
+        <!-- Riverpod -->
+        <div class="tech-logo">
+          <div class="tech-logo-icon">🔷</div>
+          <span class="tech-logo-text">Riverpod 2.4</span>
+        </div>
+
+        <!-- GoRouter -->
+        <div class="tech-logo">
+          <div class="tech-logo-icon">🛣️</div>
+          <span class="tech-logo-text">GoRouter 13</span>
+        </div>
+
+        <!-- Material 3 -->
+        <div class="tech-logo" style="grid-column: 1/-1;">
+          <svg class="logo-img" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="20" fill="#6750A4"/>
+            <circle cx="24" cy="24" r="12" fill="#fff"/>
+            <circle cx="24" cy="24" r="6" fill="#6750A4"/>
+          </svg>
+          <span class="tech-logo-text">Material Design 3</span>
+        </div>
+
+        <!-- local_auth -->
+        <div class="tech-logo">
+          <div class="tech-logo-icon">🔑</div>
+          <span class="tech-logo-text">local_auth</span>
+        </div>
+
+        <!-- pointyCastle -->
+        <div class="tech-logo">
+          <div class="tech-logo-icon">🔐</div>
+          <span class="tech-logo-text">PointyCastle</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Backend -->
+    <div class="tech-card">
+      <div class="tech-card-title">Backend</div>
+      <div class="tech-logos">
+
+        <!-- Spring Boot -->
+        <div class="tech-logo">
+          <svg class="logo-img" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="20" fill="#6db33f"/>
+            <path d="M16 24c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8-8-3.6-8-8z" fill="#fff"/>
+            <path d="M28 16c0 0 5-3 5-7" stroke="#fff" stroke-width="2" fill="none"/>
+            <circle cx="33" cy="9" r="2" fill="#fff"/>
+          </svg>
+          <span class="tech-logo-text">Spring Boot 3.2</span>
+        </div>
+
+        <!-- Java -->
+        <div class="tech-logo">
+          <svg class="logo-img" viewBox="0 0 48 48">
+            <path d="M20 6c-1 4-5 6-5 10s3 6 3 6-2-3 0-6 7-5 6-10z" fill="#EA2D2E"/>
+            <path d="M26 4c-1.5 5-8 7-8 12s4 7 4 7-3-4 0-8 9-6 8-11z" fill="#EA2D2E"/>
+            <path d="M18 26c-6 1-6 4-2 5s12 1 17-1c0 0-4 2-14 2s-7-4 2-5" fill="#5382A1" transform="translate(0,6)"/>
+            <path d="M16 31s-2 1-1 3c0 0 5 2 14-1 0 0-4 1-13 0s0-2 0-2z" fill="#5382A1" transform="translate(0,2)"/>
+          </svg>
+          <span class="tech-logo-text">Java 17 LTS</span>
+        </div>
+
+        <!-- BouncyCastle -->
+        <div class="tech-logo">
+          <div class="tech-logo-icon">🏰</div>
+          <span class="tech-logo-text">Bouncy Castle</span>
+        </div>
+
+        <!-- JJWT -->
+        <div class="tech-logo">
+          <div class="tech-logo-icon">🪙</div>
+          <span class="tech-logo-text">JJWT 0.12</span>
+        </div>
+
+        <!-- PostgreSQL -->
+        <div class="tech-logo">
+          <svg class="logo-img" viewBox="0 0 48 48">
+            <ellipse cx="24" cy="14" rx="14" ry="5" fill="#336791"/>
+            <path d="M10 14v14c0 2.8 6.3 5 14 5s14-2.2 14-5V14" fill="#336791" opacity=".8"/>
+            <ellipse cx="24" cy="28" rx="14" ry="5" fill="#336791" opacity=".6"/>
+          </svg>
+          <span class="tech-logo-text">PostgreSQL</span>
+        </div>
+
+        <!-- Spring Security -->
+        <div class="tech-logo">
+          <div class="tech-logo-icon">🛡️</div>
+          <span class="tech-logo-text">Spring Security 6</span>
+        </div>
+
+        <!-- OpenAPI -->
+        <div class="tech-logo" style="grid-column:1/-1;">
+          <div class="tech-logo-icon">📖</div>
+          <span class="tech-logo-text">OpenAPI / Swagger</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  <!-- ── END TECH PANEL ── -->
+
+</div>
+
+<p style="text-align:center; font-size:12px; color:#888; margin-top:22px; font-style:italic;">
+  Figure 1.0 &nbsp;|&nbsp; IntelCrypt System Architecture Diagram
+</p>
+
+</body>
+</html>

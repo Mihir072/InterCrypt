@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IntelCrypt – Gantt Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f4f6fb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .section-label {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 28px;
+      letter-spacing: 0.4px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 28px rgba(0,0,0,0.08);
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 1050px;
+    }
+
+    .chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      text-align: center;
+      margin-bottom: 24px;
+      letter-spacing: 0.2px;
+    }
+
+    .chart-wrap {
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+    }
+
+    .canvas-container {
+      flex: 1;
+      position: relative;
+      min-height: 420px;
+    }
+
+    canvas { display: block; }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 6px;
+      min-width: 140px;
+    }
+
+    .legend-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 12px;
+      color: #555;
+    }
+
+    .legend-dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .figure-caption {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      margin-top: 22px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <p class="page-title">8.1.1 &nbsp; Gantt Chart</p>
+  <p class="section-label">IntelCrypt – Enterprise Secure Messaging Platform</p>
+
+  <div class="card">
+    <p class="chart-title">Implementation Plan – Gantt Chart (IntelCrypt Project)</p>
+
+    <div class="chart-wrap">
+      <div class="canvas-container">
+        <canvas id="ganttChart"></canvas>
+      </div>
+
+      <div class="legend">
+        <p class="legend-title">Project Stages</p>
+        <div class="legend-item"><div class="legend-dot" style="background:#4CAF50"></div> Planning</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2196F3"></div> Development</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#9C27B0"></div> Security</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FF9800"></div> Enhancement</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#F44336"></div> Testing</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#607D8B"></div> Submission</div>
+      </div>
+    </div>
+
+    <p class="figure-caption">Figure 8.1.1.1 &nbsp;|&nbsp; IntelCrypt Implementation Gantt Chart</p>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script>
+  // Dates as timestamps
+  const toTs = (d) => new Date(d).getTime();
+
+  // Project phases: [label, start, end, color, stage-label, durationLabel]
+  const phases = [
+    {
+      label: 'Project Setup & Architecture Planning',
+      start: '2025-11-01', end: '2025-11-21',
+      color: '#4CAF50', tag: '3w'
+    },
+    {
+      label: 'Backend Core – Auth & JWT',
+      start: '2025-11-22', end: '2025-12-12',
+      color: '#2196F3', tag: '3w'
+    },
+    {
+      label: 'AES-256-GCM & RSA Crypto Engine',
+      start: '2025-12-13', end: '2026-01-02',
+      color: '#9C27B0', tag: '3w'
+    },
+    {
+      label: 'Flutter UI – Login, Signup & Biometric',
+      start: '2026-01-03', end: '2026-01-23',
+      color: '#2196F3', tag: '3w'
+    },
+    {
+      label: 'Chat & Messaging Module',
+      start: '2026-01-24', end: '2026-02-20',
+      color: '#2196F3', tag: '4w'
+    },
+    {
+      label: 'Security Layer – Rate Limiter & Honeypot',
+      start: '2026-02-21', end: '2026-03-06',
+      color: '#9C27B0', tag: '2w'
+    },
+    {
+      label: 'Acoustic Fingerprint Authentication',
+      start: '2026-03-07', end: '2026-03-27',
+      color: '#FF9800', tag: '3w'
+    },
+    {
+      label: 'Admin Dashboard & Audit Logs',
+      start: '2026-03-21', end: '2026-04-03',
+      color: '#FF9800', tag: '2w'
+    },
+    {
+      label: 'Testing & Bug Fixes',
+      start: '2026-04-04', end: '2026-04-17',
+      color: '#F44336', tag: '2w'
+    },
+    {
+      label: 'Final Submission',
+      start: '2026-04-18', end: '2026-04-25',
+      color: '#607D8B', tag: '1w'
+    },
+  ];
+
+  // Chart.js horizontal bar with floating bars
+  const labels = phases.map(p => p.label);
+  const data = phases.map(p => [toTs(p.start), toTs(p.end)]);
+  const colors = phases.map(p => p.color);
+  const tags = phases.map(p => p.tag);
+
+  const ctx = document.getElementById('ganttChart').getContext('2d');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Phase Duration',
+        data,
+        backgroundColor: colors,
+        borderRadius: 5,
+        borderSkipped: false,
+        barThickness: 28,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { right: 20 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const [s, e] = ctx.raw;
+              const fmt = (ts) => new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+              return `  ${fmt(s)}  →  ${fmt(e)}`;
+            },
+            title: (items) => items[0].label.length > 40
+              ? items[0].label.substring(0, 40) + '…'
+              : items[0].label,
+          },
+          backgroundColor: 'rgba(20,20,40,0.88)',
+          titleFont: { family: 'Inter', size: 12, weight: '600' },
+          bodyFont: { family: 'Inter', size: 11 },
+          padding: 10,
+          cornerRadius: 8,
+        },
+        // Draw duration label inside bars
+        afterDatasetsDraw: undefined,
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: {
+            unit: 'month',
+            displayFormats: { month: 'MMM-yy' },
+            tooltipFormat: 'dd MMM yyyy',
+          },
+          min: '2025-10-15',
+          max: '2026-05-15',
+          grid: { color: '#eee' },
+          ticks: {
+            font: { family: 'Inter', size: 11 },
+            color: '#666',
+            maxRotation: 45,
+            minRotation: 30,
+          },
+          title: {
+            display: true,
+            text: 'Timeline (Dates)',
+            font: { family: 'Inter', size: 12, weight: '500' },
+            color: '#444',
+            padding: { top: 8 },
+          },
+          border: { color: '#ccc' },
+        },
+        y: {
+          grid: { display: false },
+          ticks: {
+            font: { family: 'Inter', size: 11 },
+            color: '#444',
+            crossAlign: 'far',
+          },
+          title: {
+            display: true,
+            text: 'Project Phases',
+            font: { family: 'Inter', size: 12, weight: '500' },
+            color: '#444',
+            padding: { bottom: 10 },
+          },
+          border: { color: '#ccc' },
+        },
+      },
+      animation: {
+        duration: 900,
+        easing: 'easeInOutQuart',
+      },
+    },
+    plugins: [{
+      // Draw duration tag inside each bar
+      id: 'barLabels',
+      afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        chart.getDatasetMeta(0).data.forEach((bar, i) => {
+          const tag = tags[i];
+          ctx.save();
+          ctx.font = 'bold 11px Inter, sans-serif';
+          ctx.fillStyle = '#fff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const x = bar.x - (bar.width / 2) / 2 + bar.width / 2;
+          ctx.fillText(tag, bar.x - bar.width / 4, bar.y);
+          ctx.restore();
+        });
+      }
+    }]
+  });
+</script>
+
+
+</body>
+</html>
