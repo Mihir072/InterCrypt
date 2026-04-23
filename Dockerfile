@@ -42,4 +42,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 
 # Run the application
 # Render sets the PORT environment variable, so we pass it to the application
-CMD ["java", "-jar", "app.jar", "--server.port=${PORT:8080}"]
+CMD ["java", "-jar", "app.jar", "--spring.profiles.active=prod", "--server.port=${PORT:8080}"]

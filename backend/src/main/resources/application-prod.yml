@@ -1,0 +1,52 @@
+# ================================================
+# IntelCrypt - Production Configuration (Render)
+# ================================================
+spring.application.name=IntelCrypt
+server.port=${PORT:8080}
+
+# ================================================
+# DATABASE CONFIGURATION - PRODUCTION
+# ================================================
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
+
+# Connection Pool
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=2
+spring.datasource.hikari.connection-timeout=20000
+
+# JPA/Hibernate
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=false
+
+# ================================================
+# FILE UPLOAD LIMITS
+# ================================================
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
+
+# ================================================
+# SECURITY CONFIGURATION
+# ================================================
+# JWT Configuration - Use strong secrets from environment variables
+intelcrypt.jwt.secret=${JWT_SECRET}
+intelcrypt.jwt.expiration-ms=${JWT_EXPIRATION:900000}
+intelcrypt.jwt.refresh-expiration-ms=${JWT_REFRESH_EXPIRATION:86400000}
+
+# ================================================
+# LOGGING
+# ================================================
+logging.level.root=INFO
+logging.level.com.intelcrypt=INFO
+logging.level.org.springframework.security=INFO
+
+# ================================================
+# ACTUATOR - Health Checks
+# ================================================
+management.endpoints.web.exposure.include=health,metrics
+management.endpoints.web.base-path=/actuator
+management.endpoint.health.show-details=when-authorized
