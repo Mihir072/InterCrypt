@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 
 /// SecurityScreen — Stitch Key Verification + Login History design
@@ -93,13 +92,9 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen>
         bottom: 16,
       ),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppTheme.backgroundDark.withOpacity(0.8)
-            : Colors.white,
+        color: isDark ? AppTheme.backgroundDark.withOpacity(0.8) : Colors.white,
         border: Border(
-          bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.2),
-          ),
+          bottom: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.2)),
         ),
       ),
       child: Row(
@@ -134,9 +129,9 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen>
                 Text(
                   'Security Center',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
-                      ),
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                  ),
                 ),
                 Text(
                   'ENCRYPTION & VERIFICATION',
@@ -155,9 +150,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               color: AppTheme.successGreen.withOpacity(0.1),
-              border: Border.all(
-                color: AppTheme.successGreen.withOpacity(0.3),
-              ),
+              border: Border.all(color: AppTheme.successGreen.withOpacity(0.3)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -206,9 +199,7 @@ class _KeyVerificationTab extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
-              ),
+              border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
               color: isDark
                   ? AppTheme.primaryBlue.withOpacity(0.08)
                   : Colors.grey[50],
@@ -237,8 +228,8 @@ class _KeyVerificationTab extends StatelessWidget {
                 Text(
                   'Verify Identity',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -270,19 +261,19 @@ class _KeyVerificationTab extends StatelessWidget {
                       GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         padding: const EdgeInsets.all(16),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 10,
-                          crossAxisSpacing: 2,
-                          mainAxisSpacing: 2,
-                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 10,
+                              crossAxisSpacing: 2,
+                              mainAxisSpacing: 2,
+                            ),
                         itemCount: 100,
                         itemBuilder: (_, i) {
-                          final filled = (i % 3 == 0 || i % 7 == 0 || i < 15 || i > 85);
+                          final filled =
+                              (i % 3 == 0 || i % 7 == 0 || i < 15 || i > 85);
                           return Container(
                             decoration: BoxDecoration(
-                              color: filled
-                                  ? Colors.black87
-                                  : Colors.grey[200],
+                              color: filled ? Colors.black87 : Colors.grey[200],
                               borderRadius: BorderRadius.circular(1),
                             ),
                           );
@@ -308,10 +299,7 @@ class _KeyVerificationTab extends StatelessWidget {
                 const SizedBox(height: 16),
                 const Text(
                   'Scan to exchange keys',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
                 ),
               ],
             ),
@@ -324,9 +312,7 @@ class _KeyVerificationTab extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
-              ),
+              border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
               color: isDark
                   ? AppTheme.backgroundDeep.withOpacity(0.5)
                   : Colors.grey[50],
@@ -349,7 +335,9 @@ class _KeyVerificationTab extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 13,
-                    color: isDark ? AppTheme.electricCyan : AppTheme.primaryBlue,
+                    color: isDark
+                        ? AppTheme.electricCyan
+                        : AppTheme.primaryBlue,
                     height: 1.6,
                   ),
                 ),
@@ -479,14 +467,9 @@ class _LoginHistoryTab extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  AppTheme.primaryBlue,
-                  AppTheme.backgroundDeep,
-                ],
+                colors: [AppTheme.primaryBlue, AppTheme.backgroundDeep],
               ),
-              border: Border.all(
-                color: AppTheme.electricCyan.withOpacity(0.2),
-              ),
+              border: Border.all(color: AppTheme.electricCyan.withOpacity(0.2)),
             ),
             child: Row(
               children: [
@@ -572,11 +555,7 @@ class _LoginHistoryTab extends StatelessWidget {
             final event = entry.value;
             final isLast = index == events.length - 1;
 
-            return _TimelineEntry(
-              event: event,
-              isDark: isDark,
-              isLast: isLast,
-            );
+            return _TimelineEntry(event: event, isDark: isDark, isLast: isLast);
           }),
 
           const SizedBox(height: 24),
@@ -660,7 +639,10 @@ class _SecuritySettingsTab extends ConsumerWidget {
                 title: 'Two-Factor Auth',
                 subtitle: 'Authenticator app',
                 trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
                     color: AppTheme.successGreen.withOpacity(0.1),
@@ -688,9 +670,7 @@ class _SecuritySettingsTab extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppTheme.errorRed.withOpacity(0.3),
-              ),
+              border: Border.all(color: AppTheme.errorRed.withOpacity(0.3)),
               color: AppTheme.errorRed.withOpacity(0.05),
             ),
             child: Column(
@@ -698,8 +678,11 @@ class _SecuritySettingsTab extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.warning_amber,
-                        size: 20, color: AppTheme.errorRed),
+                    Icon(
+                      Icons.warning_amber,
+                      size: 20,
+                      color: AppTheme.errorRed,
+                    ),
                     const SizedBox(width: 8),
                     const Text(
                       'Destructive Actions',
@@ -790,7 +773,9 @@ class _StitchKeyCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
-        color: isDark ? AppTheme.primaryBlue.withOpacity(0.08) : Colors.grey[50],
+        color: isDark
+            ? AppTheme.primaryBlue.withOpacity(0.08)
+            : Colors.grey[50],
       ),
       child: Row(
         children: [
@@ -817,10 +802,7 @@ class _StitchKeyCard extends StatelessWidget {
                 ),
                 Text(
                   type,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
                 ),
               ],
             ),
@@ -890,15 +872,14 @@ class _TimelineEntry extends StatelessWidget {
                 height: 12,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isSuccess
-                      ? AppTheme.successGreen
-                      : AppTheme.errorRed,
+                  color: isSuccess ? AppTheme.successGreen : AppTheme.errorRed,
                   boxShadow: [
                     BoxShadow(
-                      color: (isSuccess
-                              ? AppTheme.successGreen
-                              : AppTheme.errorRed)
-                          .withOpacity(0.4),
+                      color:
+                          (isSuccess
+                                  ? AppTheme.successGreen
+                                  : AppTheme.errorRed)
+                              .withOpacity(0.4),
                       blurRadius: 6,
                     ),
                   ],
@@ -922,9 +903,7 @@ class _TimelineEntry extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
-              ),
+              border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
               color: isDark
                   ? AppTheme.primaryBlue.withOpacity(0.08)
                   : Colors.grey[50],
@@ -944,7 +923,9 @@ class _TimelineEntry extends StatelessWidget {
                     const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4),
                         color: isSuccess
@@ -967,10 +948,7 @@ class _TimelineEntry extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   '${event.location} • IP: ${event.ip}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -1001,7 +979,9 @@ class _SettingsCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
-        color: isDark ? AppTheme.primaryBlue.withOpacity(0.08) : Colors.grey[50],
+        color: isDark
+            ? AppTheme.primaryBlue.withOpacity(0.08)
+            : Colors.grey[50],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
@@ -1045,10 +1025,7 @@ class _SettingsRow extends StatelessWidget {
                 ),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
                 ),
               ],
             ),
