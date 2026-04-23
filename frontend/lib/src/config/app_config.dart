@@ -4,7 +4,7 @@ class AppConfig {
   AppConfig._();
 
   /// API Configuration
-  static const String apiBaseUrl = 'http://172.25.133.205:8443/api';
+  static const String apiBaseUrl = 'http://192.168.0.103:8443/api';
 
   /// API Timeout settings (in seconds)
   static const int connectionTimeout = 60;
